@@ -1,0 +1,97 @@
+{
+  "spec-template": {
+    "name": "Standard Quint Spec Template",
+    "description": "Complete boilerplate for a new Quint specification following State type + Pure functions + Thin actions pattern",
+    "filename": "spec-template.qnt",
+    "framework": "standard",
+    "use_for": [
+      "Smart contracts",
+      "State machines",
+      "DeFi protocols",
+      "General systems"
+    ],
+    "includes": [
+      "State type definition",
+      "Constants",
+      "Pure functions",
+      "State variables",
+      "Invariants",
+      "Thin actions",
+      "Action witnesses",
+      "Initialization",
+      "Step action"
+    ],
+    "instructions": [
+      "Replace 'System' with your module name",
+      "Define your types in section 1",
+      "Add constants in section 2",
+      "Implement business logic in pure functions (section 3)",
+      "Declare state variables matching State type (section 4)",
+      "Add invariants (section 5)",
+      "Create thin actions that call pure functions (section 6)",
+      "Add action witnesses for reachability testing (section 6.1)",
+      "Initialize state with mapBy for maps (section 7)",
+      "Configure step action for exploration (section 8)"
+    ]
+  },
+  "test-template": {
+    "name": "Quint Test File Template",
+    "description": "Template for test file that imports and tests a Quint specification",
+    "filename": "test-template.qnt",
+    "framework": "standard",
+    "use_for": [
+      "Testing specs after main spec is finalized"
+    ],
+    "includes": [
+      "Import statement",
+      "Concrete deterministic tests",
+      "Non-deterministic tests with oneOf()"
+    ],
+    "instructions": [
+      "Create test file AFTER reviewing main spec",
+      "Replace 'system' with your module name",
+      "Replace 'System' with your imported module",
+      "Update test names and expectations",
+      "Start with concrete tests, add non-deterministic tests later"
+    ],
+    "workflow": "Only create test file after reviewing and finalizing the main specification"
+  },
+  "choreo-testing-workflow": {
+    "name": "Choreo Testing Workflow Tutorial",
+    "description": "Complete workflow for testing Choreo listener reachability using witness-based counterexample generation and conversion to test runs",
+    "filename": "choreo-testing-workflow.md",
+    "framework": "choreo",
+    "use_for": [
+      "Testing Choreo listener actions",
+      "Finding reachable actions in Choreo specs",
+      "Converting counterexamples to test runs",
+      "Testing complex preconditions in consensus protocols"
+    ],
+    "includes": [
+      "Step 1: Adding custom effects/extensions for logging",
+      "Step 2: Writing witnesses to find counterexamples",
+      "Step 3: Converting counterexamples to test runs",
+      "Step 3.1: Handling complex counterexamples",
+      "Step 4: Removing instrumentation",
+      "Additional learnings and best practices"
+    ],
+    "instructions": [
+      "Step 1: Instrument your spec with custom Log effects in each action",
+      "Step 1b: Add displayer function and init_displayer/step actions",
+      "Step 2: Write witness invariant (should be violated)",
+      "Step 2b: Run with 'quint run' to get counterexample",
+      "Step 2c: Minimize counterexample by decreasing --max-steps",
+      "Step 3: Convert each log entry to .then(process.with_cue(listener, params).perform(action))",
+      "Step 3b: Test converted run with 'quint test'",
+      "Step 4: Remove all logging instrumentation, keep only tests"
+    ],
+    "workflow": "Use this workflow when you need to test that specific Choreo listener actions are reachable, especially for actions with complex preconditions",
+    "key_patterns": [
+      "choreo::CustomEffect(Log(...))",
+      "init_with_displayer",
+      "step_with_displayer",
+      "with_cue(listener, params).perform(action)",
+      "match s.extensions.log { | MyAction(_) => false | _ => true }"
+    ]
+  }
+}
