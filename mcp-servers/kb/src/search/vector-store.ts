@@ -41,13 +41,15 @@ export class VectorStore {
     }
 
     const { neighbors, distances } = index.searchKnn(vector, Math.min(k, records.length));
+    const neighborIds: number[] = Array.from(neighbors);
+    const neighborDistances: number[] = Array.from(distances);
 
-    return neighbors.map((label, position) => {
+    return neighborIds.map((label: number, position: number) => {
       const record = records[label];
       if (!record) {
         throw new Error(`Vector store corrupt: missing record for label ${label}`);
       }
-      const distance = distances[position];
+      const distance = neighborDistances[position];
       const score = 1 - distance; // cosine distance -> similarity
 
       return {

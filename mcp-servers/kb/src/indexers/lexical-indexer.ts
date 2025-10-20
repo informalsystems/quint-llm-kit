@@ -22,7 +22,7 @@ function buildMiniSearch(docs: SearchDocument[]) {
   const miniSearch = new MiniSearch<LexicalDoc>({
     fields: ['title', 'content', 'tagsText'],
     storeFields: ['id', 'scope', 'title', 'snippet', 'source', 'tags', 'metadata'],
-    preprocess: (text: string) => text.toLowerCase()
+    processTerm: (term) => term.toLowerCase()
   });
 
   miniSearch.addAll(

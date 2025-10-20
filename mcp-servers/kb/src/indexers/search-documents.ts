@@ -176,7 +176,7 @@ function buildExampleDocuments(dataDir: string): SearchDocument[] {
       example.subcategory,
       ...example.modules,
       ...example.keywords
-    ].filter(Boolean);
+    ].filter((tag): tag is string => Boolean(tag));
 
     return {
       id: `example:${example.path}`,

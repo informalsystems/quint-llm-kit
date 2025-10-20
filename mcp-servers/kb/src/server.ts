@@ -25,6 +25,29 @@ const server = new Server(
     version: '0.4.0'
   },
   {
+    capabilities: {
+      tools: {}
+    }
+  }
+) as any;
+
+// Define available tools
+const TOOLS: Tool[] = [
+  {
+    name: 'quint_get_builtin',
+    description: 'Get detailed documentation for a specific Quint builtin operator. Returns signature, description, examples, and usage information.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Name of the builtin operator (e.g., "union", "filter", "map", "Set", "List")'
+        }
+      },
+      required: ['name']
+    }
+  },
+  {
     name: 'quint_hybrid_search',
     description: 'Advanced hybrid search combining lexical BM25 and semantic embeddings with Reciprocal Rank Fusion. Supports querying multiple scopes in a single call.',
     inputSchema: {
@@ -57,29 +80,6 @@ const server = new Server(
         }
       },
       required: ['query']
-    }
-  },
-  {
-    capabilities: {
-      tools: {}
-    }
-  }
-);
-
-// Define available tools
-const TOOLS: Tool[] = [
-  {
-    name: 'quint_get_builtin',
-    description: 'Get detailed documentation for a specific Quint builtin operator. Returns signature, description, examples, and usage information.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-          description: 'Name of the builtin operator (e.g., "union", "filter", "map", "Set", "List")'
-        }
-      },
-      required: ['name']
     }
   },
   {
@@ -287,7 +287,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 });
 
 // Handle tool execution
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
   const { name, arguments: args } = request.params;
 
   try {

@@ -1,29 +1,16 @@
-import type { SearchResult, SearchScope } from './types.js';
-
-export interface RankedResult {
-  id: string;
-  scope: SearchScope;
-  score: number;
-  title?: string;
-  snippet?: string;
-  source?: string;
-  tags?: string[];
-  metadata?: Record<string, unknown>;
-  highlights?: string[];
-  strategy: 'lexical' | 'semantic';
-}
+import type { SearchResult } from './types.js';
 
 const DEFAULT_RRF_K = 60;
 
 export function reciprocalRankFusion(
-  lexicalResults: RankedResult[],
-  semanticResults: RankedResult[],
+  lexicalResults: SearchResult[],
+  semanticResults: SearchResult[],
   rrfK: number = DEFAULT_RRF_K
 ): SearchResult[] {
   const scores = new Map<string, number>();
-  const base = new Map<string, RankedResult>();
+  const base = new Map<string, SearchResult>();
 
-  const updateScore = (result: RankedResult, rank: number) => {
+  const updateScore = (result: SearchResult, rank: number) => {
     const key = result.id;
     base.set(key, result);
     const increment = 1 / (rrfK + rank + 1);
@@ -41,16 +28,10 @@ export function reciprocalRankFusion(
         throw new Error(`Missing base result for id ${id}`);
       }
       return {
-        id,
-        scope: original.scope,
-        title: original.title ?? id,
-        snippet: original.snippet,
-        source: original.source,
-        tags: original.tags,
-        metadata: original.metadata,
-        highlights: original.highlights,
+        ...original,
         score: fusedScore,
-        strategy: 'fused' as const
+        strategy: 'fused' as const,
+        title: original.title ?? id
       };
     });
 }

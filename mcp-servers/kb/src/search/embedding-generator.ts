@@ -127,7 +127,7 @@ export class EmbeddingGenerator {
 
     for (let i = 0; i < sanitized.length; i += batchSize) {
       const batch = sanitized.slice(i, i + batchSize);
-      const output = await model(batch, { pooling: 'mean', normalize: true });
+      const output = await model(batch as any, { pooling: 'mean', normalize: true } as any);
 
       if (Array.isArray(output)) {
         for (const item of output) {

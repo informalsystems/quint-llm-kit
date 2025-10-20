@@ -42,7 +42,7 @@ export interface HybridSearchResponse {
   query: string;
   scopes: SearchScope[];
   limitPerScope: number;
-  resultsByScope: Record<SearchScope, SearchResult[]>;
+  resultsByScope: Partial<Record<SearchScope, SearchResult[]>>;
   // Backwards compatibility fields when only one scope is requested
   scope?: SearchScope;
   k?: number;
@@ -80,7 +80,7 @@ export async function runHybridSearch(
   }
 
   const perScopeLimit = limitPerScope ?? rest.k ?? DEFAULT_LIMIT_PER_SCOPE;
-  const resultsByScope: Record<SearchScope, SearchResult[]> = {} as Record<SearchScope, SearchResult[]>;
+  const resultsByScope: Partial<Record<SearchScope, SearchResult[]>> = {};
 
   for (const scope of scopes) {
     const results = await hybridSearch.search(query, {
