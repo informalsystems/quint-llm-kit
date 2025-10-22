@@ -1,0 +1,243 @@
+# Refactor Plan Display Template
+
+This template is used by the analyzer agent to display refactor plans for user approval.
+
+## Template Structure
+
+```
+╔══════════════════════════════════════════════════════════╗
+║  Refactor Plan: {objective}                              ║
+╚══════════════════════════════════════════════════════════╝
+
+📋 Objective
+{objective_description}
+
+🎯 Modules Affected: {module_count}
+
+{for each module}
+┌─ Module: {module_name} ────────────────────────────────┐
+│                                                         │
+{if has additions}
+│ ➕ ADD ({add_count} items)                              │
+{for each addition}
+│   • {item_type}: {item_name}                            │
+│     {details}                                           │
+│     {if line_ref}(line {line_ref}){endif}               │
+│                                                         │
+{endfor}
+{endif}
+│                                                         │
+{if has modifications}
+│ ✏️  MODIFY ({modify_count} items)                       │
+{for each modification}
+│   • {item_type}: {item_name} (line {line_ref})          │
+│     {details}                                           │
+│                                                         │
+{endfor}
+{endif}
+│                                                         │
+{if has removals}
+│ ➖ REMOVE ({remove_count} items)                        │
+{for each removal}
+│   • {item_type}: {item_name} (line {line_ref})          │
+│     {details}                                           │
+│                                                         │
+{endfor}
+{endif}
+{if has notes}
+│ 📝 Notes: {notes}                                       │
+│                                                         │
+{endif}
+└─────────────────────────────────────────────────────────┘
+
+{endfor}
+
+{if has patterns}
+🎨 Patterns to Apply ({pattern_count})
+{for each pattern}
+  • {pattern_id}: {reason}
+    {if modules}Applies to: {module_list}{endif}
+{endfor}
+{endif}
+
+✅ Validation Plan ({validation_count} checks)
+{for each validation with index}
+  {index}. {command_short}
+     Purpose: {purpose}
+     {if expected_outcome}Expected: {expected_outcome}{endif}
+{endfor}
+
+{if has risks}
+⚠️  Risks ({risk_count})
+{for each risk}
+  • [{severity}] {description}
+    {if mitigation}Mitigation: {mitigation}{endif}
+{endfor}
+{endif}
+
+{if has open_questions}
+❓ Open Questions
+{for each question}
+  • {question}
+{endfor}
+{endif}
+
+───────────────────────────────────────────────────────────
+
+Do you approve this refactor plan?
+
+  [1] ✓ Approve and proceed
+      Continue to implementation phase
+
+  [2] ✗ Reject and cancel
+      Stop refactoring, no changes made
+
+  [3] ✎ Edit plan manually
+      Open plan in editor for adjustments
+
+  [4] 💾 Save plan and decide later
+      Write plan to file, exit gracefully
+
+Your choice [1-4]:
+```
+
+## Variables Reference
+
+### Top Level
+- `{objective}`: Short title (truncated to 50 chars)
+- `{objective_description}`: Full objective text
+- `{module_count}`: Number of modules affected
+
+### Module Level
+- `{module_name}`: Name of the module
+- `{add_count}`: Number of additions
+- `{modify_count}`: Number of modifications
+- `{remove_count}`: Number of removals
+- `{notes}`: Optional module notes
+
+### Change Item
+- `{item_type}`: type, constant, state, pure_def, action, invariant, test
+- `{item_name}`: Name of the item
+- `{details}`: Description of the change
+- `{line_ref}`: Line number (optional)
+
+### Patterns
+- `{pattern_count}`: Number of patterns
+- `{pattern_id}`: Pattern identifier
+- `{reason}`: Why this pattern applies
+- `{module_list}`: Comma-separated module names
+
+### Validation
+- `{index}`: 1-based index
+- `{command_short}`: Shortened command (e.g., "quint typecheck")
+- `{purpose}`: What this validation checks
+- `{expected_outcome}`: Expected result
+
+### Risks
+- `{risk_count}`: Number of risks
+- `{severity}`: HIGH, MEDIUM, LOW
+- `{description}`: Risk description
+- `{mitigation}`: Optional mitigation strategy
+
+### Questions
+- `{question}`: Open question text
+
+## Formatting Rules
+
+1. **Truncation:**
+   - Objective title: max 50 chars, append "..." if longer
+   - Details: max 80 chars per line, wrap if needed
+
+2. **Counters:**
+   - Only show sections with count > 0
+   - Show "0 items" if explicitly needed
+
+3. **Line References:**
+   - Show "(line X)" for modifications and removals
+   - Optional for additions (usually no line ref)
+
+4. **Colors (if terminal supports):**
+   - ➕ ADD: Green
+   - ✏️  MODIFY: Yellow
+   - ➖ REMOVE: Red
+   - ⚠️  Risks: Yellow
+   - ✓ Approve: Green
+   - ✗ Reject: Red
+
+5. **Box Drawing:**
+   - Header: ╔══╗ (double line)
+   - Modules: ┌──┐ (single line)
+   - Separator: ─── (em dash)
+
+## Example Output
+
+```
+╔══════════════════════════════════════════════════════════╗
+║  Refactor Plan: Add timeout mechanism                    ║
+╚══════════════════════════════════════════════════════════╝
+
+📋 Objective
+Add timeout mechanism to enable round progression when
+consensus stalls due to lack of proposals or votes.
+
+🎯 Modules Affected: 1
+
+┌─ Module: Consensus ────────────────────────────────────┐
+│                                                         │
+│ ➕ ADD (3 items)                                        │
+│   • type: TimeoutEvent                                  │
+│     Union type for ProposeTimeout | PrevoteTimeout |    │
+│     PrecommitTimeout                                    │
+│                                                         │
+│   • state: timeouts                                     │
+│     Map from node ID to set of pending timeout events   │
+│                                                         │
+│   • action: handleTimeout                               │
+│     Process timeout event and advance round if          │
+│     applicable                                          │
+│                                                         │
+│ ✏️  MODIFY (1 item)                                     │
+│   • action: step (line 100)                             │
+│     Include handleTimeout in step action choices        │
+│                                                         │
+│ 📝 Notes: Ensure timeout handling preserves agreement   │
+│           invariant                                     │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+🎨 Patterns to Apply (1)
+  • thin-actions: Keep handleTimeout logic in pure functions
+    Applies to: Consensus
+
+✅ Validation Plan (3 checks)
+  1. quint parse specs/consensus.qnt
+     Purpose: Verify syntax correctness
+  2. quint typecheck specs/consensus.qnt
+     Purpose: Ensure type safety
+     Expected: All types valid
+  3. quint run --invariant=agreement --max-steps=100
+     Purpose: Verify agreement preserved after timeout changes
+     Expected: Invariant satisfied
+
+⚠️  Risks (1)
+  • [MEDIUM] Timeout timing assumptions may not hold in all
+    network conditions
+
+───────────────────────────────────────────────────────────
+
+Do you approve this refactor plan?
+
+  [1] ✓ Approve and proceed
+      Continue to implementation phase
+
+  [2] ✗ Reject and cancel
+      Stop refactoring, no changes made
+
+  [3] ✎ Edit plan manually
+      Open plan in editor for adjustments
+
+  [4] 💾 Save plan and decide later
+      Write plan to file, exit gracefully
+
+Your choice [1-4]:
+```

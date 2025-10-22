@@ -1,0 +1,166 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Verification Report",
+  "description": "Comprehensive verification results for Quint specifications",
+  "type": "object",
+  "required": ["overall_status", "summary", "issues", "requirements_coverage"],
+  "properties": {
+    "overall_status": {
+      "type": "string",
+      "enum": ["success", "has_failures", "compilation_failed"],
+      "description": "High-level status of verification"
+    },
+    "summary": {
+      "type": "object",
+      "required": ["compilation_status"],
+      "properties": {
+        "total_requirements": {"type": "integer"},
+        "requirements_covered": {"type": "integer"},
+        "requirements_passed": {"type": "integer"},
+        "requirements_failed": {"type": "integer"},
+        "compilation_status": {
+          "type": "string",
+          "enum": ["passed", "failed"]
+        },
+        "existing_tests": {
+          "type": "object",
+          "properties": {
+            "total": {"type": "integer"},
+            "passed": {"type": "integer"},
+            "failed": {"type": "integer"}
+          }
+        },
+        "witnesses": {
+          "type": "object",
+          "properties": {
+            "total": {"type": "integer"},
+            "violated": {"type": "integer"},
+            "satisfied": {"type": "integer"},
+            "success": {"type": "integer"},
+            "concerns": {"type": "integer"}
+          }
+        },
+        "invariants": {
+          "type": "object",
+          "properties": {
+            "total": {"type": "integer"},
+            "satisfied": {"type": "integer"},
+            "violated": {"type": "integer"},
+            "success": {"type": "integer"},
+            "bugs": {"type": "integer"}
+          }
+        },
+        "deterministic_tests": {
+          "type": "object",
+          "properties": {
+            "total": {"type": "integer"},
+            "passed": {"type": "integer"},
+            "failed": {"type": "integer"}
+          }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "severity", "category", "title", "description"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {
+            "type": "string",
+            "enum": ["bug", "suspect", "coverage_gap", "weak_assertion", "compilation_failure"]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["blocker", "critical", "high", "medium", "low"]
+          },
+          "category": {"type": "string"},
+          "title": {"type": "string"},
+          "description": {"type": "string"},
+          "requirement_id": {"type": ["string", "null"]},
+          "module": {"type": "string"},
+          "component": {"type": "string"},
+          "evidence": {"type": "string"},
+          "reproduction": {"type": ["string", "null"]},
+          "root_cause_hypothesis": {"type": "string"},
+          "remediation": {"type": "string"},
+          "priority": {"type": "integer"}
+        }
+      }
+    },
+    "requirements_coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["requirement_id", "description", "status"],
+        "properties": {
+          "requirement_id": {"type": "string"},
+          "description": {"type": "string"},
+          "status": {
+            "type": "string",
+            "enum": ["verified", "failed", "suspect", "not_covered", "partially_covered"]
+          },
+          "covered_by": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "verification_results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {"type": "string"},
+                "name": {"type": "string"},
+                "result": {"type": "string"}
+              }
+            }
+          },
+          "issue_ids": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["category", "suggestion", "priority"],
+        "properties": {
+          "requirement_id": {"type": ["string", "null"]},
+          "category": {
+            "type": "string",
+            "enum": ["fix_bug", "investigate", "add_coverage", "improve_tests"]
+          },
+          "suggestion": {"type": "string"},
+          "priority": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"]
+          },
+          "effort": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "details": {"type": "string"}
+        }
+      }
+    },
+    "reproduction_commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["description", "command"],
+        "properties": {
+          "description": {"type": "string"},
+          "command": {"type": "string"}
+        }
+      }
+    },
+    "next_actions": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  }
+}
