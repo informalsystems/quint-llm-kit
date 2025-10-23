@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Spec Structure",
+  "description": "Structural metadata extracted from Quint specifications",
+  "type": "object",
+  "required": ["files"],
+  "properties": {
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "modules"],
+        "properties": {
+          "path": {"type": "string"},
+          "modules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "framework"],
+              "properties": {
+                "name": {"type": "string"},
+                "framework": {
+                  "type": "string",
+                  "enum": ["standard", "choreo"]
+                },
+                "imports": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                },
+                "dependencies": {
+                  "type": "array",
+                  "items": {"type": "string"},
+                  "description": "Other module names this depends on"
+                },
+                "ast": {
+                  "type": "object",
+                  "properties": {
+                    "types": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": {
+                          "name": {"type": "string"},
+                          "line": {"type": "integer"}
+                        }
+                      }
+                    },
+                    "constants": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": {
+                          "name": {"type": "string"},
+                          "line": {"type": "integer"}
+                        }
+                      }
+                    },
+                    "state_vars": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": {
+                          "name": {"type": "string"},
+                          "line": {"type": "integer"}
+                        }
+                      }
+                    },
+                    "pure_defs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": {
+                          "name": {"type": "string"},
+                          "line": {"type": "integer"}
+                        }
+                      }
+                    },
+                    "actions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": {
+                          "name": {"type": "string"},
+                          "line": {"type": "integer"}
+                        }
+                      }
+                    },
+                    "invariants": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": {
+                          "name": {"type": "string"},
+                          "line": {"type": "integer"}
+                        }
+                      }
+                    },
+                    "tests": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": {
+                          "name": {"type": "string"},
+                          "line": {"type": "integer"}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
