@@ -71,16 +71,40 @@ When you begin work, you will:
    - State variable changes (data structure modifications)
    - Invariant changes (new consistency requirements)
 
-5. **Identify Architectural Decisions and Ask User Interactively**: Before creating the implementation plan, identify decisions where you have LOW confidence about the correct mapping, then ask the user for guidance.
+5. **Identify Architectural Decisions and Ask User Interactively**: For each listener/handler transition, systematically determine if user input is needed.
 
-   **PROCESS**:
-   a) Analyze specs and codebase to identify architectural ambiguities
-   b) For each ambiguity, formulate a structured decision question
-   c) Create/update `DECISIONS.md` file in working directory
-   d) Present decisions to user in your report
-   e) Wait for user to provide answers (user will respond in next message)
-   f) Record user's decisions in `DECISIONS.md`
-   g) Use decisions to generate detailed `SPEC_MIGRATION_TASKS.md`
+   **DECISION-MAKING ALGORITHM** (for each listener/handler):
+
+   ```
+   For each listener/handler in main_listener:
+     1. Read the Quint spec section about it and analyze the diff with the original spec
+        - What changed? New fields? Different logic? Removed concepts?
+        - What are the preconditions, postconditions, state changes?
+
+     2. Read the documentation file and look for anything related to it
+        - Focus ESPECIALLY on anything that hints on how it maps to implementation/code
+        - Look for data structure guidance, architectural notes, performance hints
+        - Look for "should be implemented as", "in practice", "architecture" mentions
+
+     3. Look at the existing code and come up with a few options on how to implement it
+        - Identify 2-5 plausible implementation approaches
+        - Consider: where it lives, what structures it needs, how it integrates
+
+     4. If the best option is OBVIOUS or CLEARLY STATED in the documentation:
+          Choose this option and define the sub-tasks for it directly
+          Document your reasoning in task description
+        Else:
+          Present the options to the user and ask for feedback
+          Add to DECISIONS.md file
+          Mark affected tasks as "Pending Decision N"
+   ```
+
+   **CRITICAL**: Do NOT ask the user questions that you can answer by:
+   - Examining the protocol description/documentation thoroughly
+   - Analyzing the Quint specification carefully
+   - Reading and understanding the existing implementation patterns
+
+   Only ask when genuinely ambiguous after exhausting these sources.
 
    **ASK USER FOR CLARIFICATION** when:
    - A new data structure is needed but multiple reasonable implementations exist (e.g., HashMap vs BTreeMap, Vec vs LinkedList)
@@ -132,10 +156,27 @@ When you begin work, you will:
    ```
 
    **WORKFLOW**:
-   1. First run: Create DECISIONS.md with questions, create summary SPEC_MIGRATION_TASKS.md outline
-   2. User provides answers (edits DECISIONS.md or provides in chat)
-   3. Second run: Read DECISIONS.md, generate full detailed SPEC_MIGRATION_TASKS.md with all tasks
-   4. Implementation proceeds with decisions documented
+   1. **First run** (Initial Analysis):
+      - For each listener/handler, follow the 4-step algorithm above
+      - Create DECISIONS.md ONLY for genuinely ambiguous decisions
+      - For clear mappings, directly create detailed tasks with reasoning
+      - Create SPEC_MIGRATION_TASKS.md with:
+        * Complete tasks for clear mappings (most should be clear!)
+        * Placeholder tasks marked "Pending Decision N" for ambiguous cases
+
+   2. **User Review**:
+      - User reviews DECISIONS.md
+      - User provides answers (edits DECISIONS.md or responds in chat)
+      - User may also review and approve the clear mappings you made
+
+   3. **Second run** (if decisions were needed):
+      - Read user's decisions from DECISIONS.md
+      - Generate full detailed tasks for previously pending items
+      - Update SPEC_MIGRATION_TASKS.md with complete task breakdown
+
+   4. **Implementation proceeds** with all decisions documented
+
+   **GOAL**: Minimize user questions by doing thorough analysis. Most transitions should have clear implementations derivable from spec + docs + code patterns. Only ask about genuinely ambiguous architectural choices.
 
 6. **Create Implementation Plan**: Generate a comprehensive TODO list in markdown format (named `SPEC_MIGRATION_TASKS.md`) organized by the `main_listener` function from the target spec.
 
