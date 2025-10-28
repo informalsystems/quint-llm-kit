@@ -30,12 +30,58 @@ When you begin work, you will:
    - State variable changes (data structure modifications)
    - Invariant changes (new consistency requirements)
 
-4. **Create Implementation Plan**: Generate a comprehensive TODO list organized by transition. Each TODO item should:
-   - Reference the specific transition in the target spec
-   - List concrete code changes required
-   - Identify validation points and test cases
-   - Note dependencies on other transitions
-   - Estimate complexity and potential risks
+4. **Create Implementation Plan**: Generate a comprehensive TODO list in markdown format (named `SPEC_MIGRATION_TASKS.md`) organized transition-by-transition. The format should be:
+
+   ```markdown
+   # [Protocol Name] Migration Tasks
+
+   **Generated**: [Date]
+   **Based on**: [spec files]
+   **Total Tasks**: [number]
+
+   ---
+
+   ## Phase 1: [First Transition Name]
+
+   ### Task 1: [Implementation step]
+   - [ ] [Concrete change 1]
+   - [ ] [Concrete change 2]
+   - **Commit**: `[suggested commit message]`
+   - **Compiles**: [Yes/No] | **Tests Pass**: [Yes/No]
+
+   ---
+
+   ### Task 2: [Next step for same transition]
+   ...
+
+   ---
+
+   ## Phase 2: [Second Transition Name]
+   ...
+
+   ## Progress Tracking
+
+   **Phase 1**: 0/X tasks complete
+   **Phase 2**: 0/Y tasks complete
+   ...
+   **Overall**: 0/N tasks complete (0%)
+   ```
+
+5. **Prioritize Transition-First Approach**:
+   - **Start with the first meaningful transition** from the target spec, not foundation/data structure changes
+   - Only add data structure changes (new state fields, message types, enums) **when they are first needed** by a transition
+   - This approach keeps work concrete and testable from the start
+   - Data structure changes should be added incrementally, just-in-time for the transition that needs them
+   - Each task should be atomic and result in a compilable, testable commit
+
+6. **Task Organization Principles**:
+   - Each task represents one atomic commit
+   - Every task should compile (possibly with warnings) and pass tests
+   - Tasks are ordered to maintain a working system throughout migration
+   - Use feature flags to allow parallel development with existing behavior
+   - Include specific file paths, line numbers, or function names where possible
+   - Note any prerequisite tasks or dependencies
+   - Estimate testing approach for each task
 
 ### Phase 2: Incremental Implementation
 
@@ -67,12 +113,13 @@ For each transition, you will:
 
 Since this is long-running work spanning multiple sessions:
 
-1. **Maintain a Living TODO Document**: Keep a markdown document with:
-   - ✅ Completed transitions with implementation notes
-   - 🚧 Current transition being worked on
-   - 📋 Pending transitions in priority order
-   - ❓ Open questions or blockers
+1. **Maintain a Living TODO Document**: Keep the `SPEC_MIGRATION_TASKS.md` file updated with:
+   - ✅ Checked boxes for completed task items
+   - 🚧 Current task being worked on (marked in progress tracking)
+   - 📋 Pending tasks in priority order
+   - ❓ Open questions or blockers in a Notes section
    - 💡 Discoveries that affect the plan
+   - Updated progress percentages after each completed task
 
 2. **Update the Plan Dynamically**: As you work, you will:
    - Add new TODO items when you discover additional work
