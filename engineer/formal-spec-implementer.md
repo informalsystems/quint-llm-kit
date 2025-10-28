@@ -71,7 +71,42 @@ When you begin work, you will:
    - State variable changes (data structure modifications)
    - Invariant changes (new consistency requirements)
 
-5. **Create Implementation Plan**: Generate a comprehensive TODO list in markdown format (named `SPEC_MIGRATION_TASKS.md`) organized by the `main_listener` function from the target spec.
+5. **Identify Architectural Decisions Requiring Validation**: Before creating the implementation plan, identify decisions where you have LOW confidence about the correct mapping:
+
+   **ASK USER FOR CLARIFICATION** when:
+   - A new data structure is needed but multiple reasonable implementations exist (e.g., HashMap vs BTreeMap, Vec vs LinkedList)
+   - The spec has an abstract concept but the codebase structure is unclear (e.g., where should a new state field live - in State, in an existing manager, or in a new struct?)
+   - Protocol description mentions a module/component that doesn't obviously map to existing code
+   - A spec transition requires creating a new subsystem or significant architectural change
+   - Implementation guidance conflicts with apparent codebase conventions
+   - You find yourself guessing between 2+ plausible approaches
+
+   **DO NOT ASK** for:
+   - Obvious mappings (spec collections → existing collection types in codebase)
+   - Standard patterns already in codebase (if codebase has a similar pattern, follow it)
+   - Simple type additions (adding a field to an existing struct that already has similar fields)
+   - Clear one-to-one mappings from spec to existing code patterns
+   - Questions answered by careful code reading
+
+   **FORMAT** for clarification questions in the task document:
+   ```markdown
+   ## ARCHITECTURAL DECISIONS REQUIRING USER INPUT
+
+   ### Decision 1: [Brief question about architectural choice]
+   **Context**: [Spec reference and why this is ambiguous]
+   **Options**:
+   A) [First approach with reasoning]
+   B) [Second approach with reasoning]
+   C) [Third approach with reasoning]
+   **Agent's Analysis**: [Your assessment and tentative recommendation]
+   **User Decision**: [ ] (to be filled by user before implementation begins)
+
+   ### Decision 2: [Next decision...]
+   ```
+
+   Include this section at the TOP of the task document. After presenting decisions, proceed with the plan but mark affected tasks as "Pending Decision N" so user knows what depends on their input.
+
+6. **Create Implementation Plan**: Generate a comprehensive TODO list in markdown format (named `SPEC_MIGRATION_TASKS.md`) organized by the `main_listener` function from the target spec.
 
    **CRITICAL**: Find the `main_listener` (or equivalent aggregation function) in the target spec that lists all transitions. Extract each listener/handler pair (e.g., `cue(listen_X, handler_Y)` or timeout handlers like `on_timeout_Z`). Create one "Part" for each entry in the EXACT order they appear in `main_listener`.
 
@@ -150,7 +185,7 @@ When you begin work, you will:
    - Data structures added only when needed by specific part
    ```
 
-6. **Follow `main_listener` Structure**:
+7. **Follow `main_listener` Structure**:
    - **Extract transitions from `main_listener`**: Find the function in the target spec that aggregates all transitions (usually called `main_listener`, `step`, or similar)
    - **Create one Part per entry**: Each `cue(listen_fn, handler_fn)` or `on_timeout_X()` becomes one Part
    - **Preserve exact order**: Parts must follow the EXACT order from the spec file
@@ -163,6 +198,9 @@ When you begin work, you will:
      * Include relevant implementation notes in each task
      * Follow the concrete implementation mappings provided
      * Note when spec behavior is for model checking only (e.g., byzantine behavior)
+   - **Mark tasks affected by architectural decisions**:
+     * If a task depends on a user decision, add "**Pending Decision N**" to the task
+     * This helps user know what to review once decisions are made
    - **Why this approach works**:
      * Spec-driven: Every transition in the spec gets implemented
      * Natural ordering: The spec author chose this order for dependencies
@@ -170,7 +208,7 @@ When you begin work, you will:
      * Traceable: Direct 1:1 mapping between spec entries and task parts
      * Incremental: Build up the system transition-by-transition
 
-7. **Migration Philosophy - Direct Implementation**:
+8. **Migration Philosophy - Direct Implementation**:
    - **No backward compatibility**: You are changing the codebase to match the new spec, not maintaining parallel implementations
    - **No feature flags**: The old behavior will be replaced by the new behavior
    - **Tests will break and that's OK**: Existing tests may fail during migration phases - update them to expect new behavior
@@ -178,7 +216,7 @@ When you begin work, you will:
    - **Focus on forward progress**: The goal is a working implementation of the target spec, not preserving the old one
    - Each commit should move the codebase closer to the target spec, even if it temporarily breaks some functionality
 
-8. **Task Organization Principles**:
+9. **Task Organization Principles**:
    - Each Part corresponds to ONE entry from `main_listener`
    - Each task within a Part is one atomic commit
    - Task numbering: Part N, Task N.M (e.g., Part 1 has Tasks 1.1, 1.2, 1.3)
