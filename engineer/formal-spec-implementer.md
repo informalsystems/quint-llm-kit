@@ -30,70 +30,87 @@ When you begin work, you will:
    - State variable changes (data structure modifications)
    - Invariant changes (new consistency requirements)
 
-4. **Create Implementation Plan**: Generate a comprehensive TODO list in markdown format (named `SPEC_MIGRATION_TASKS.md`) organized transition-by-transition. The format should be:
+4. **Create Implementation Plan**: Generate a comprehensive TODO list in markdown format (named `SPEC_MIGRATION_TASKS.md`) organized by the `main_listener` function from the target spec.
+
+   **CRITICAL**: Find the `main_listener` (or equivalent aggregation function) in the target spec that lists all transitions. Extract each listener/handler pair (e.g., `cue(listen_X, handler_Y)` or timeout handlers like `on_timeout_Z`). Create one "Part" for each entry in the EXACT order they appear in `main_listener`.
+
+   The format should be:
 
    ```markdown
    # [Protocol Name] Migration Tasks
 
    **Generated**: [Date]
    **Based on**: [spec files]
-   **Total Tasks**: [number]
+   **Source**: `main_listener` function in target spec (lines X-Y)
+   **Total Parts**: [number of entries in main_listener]
 
    ---
 
-   ## Phase 1: [First Transition Name - from target spec]
+   ## Part 1: [listener_name → handler_name] (Spec lines X-Y)
 
-   ### Task 1: Implement [transition name] (Spec lines X-Y)
-   - [ ] [Concrete code change 1]
-   - [ ] [Concrete code change 2]
-   - [ ] Update/remove tests that check old behavior
-   - [ ] Add test for new transition behavior
-   - **Spec Reference**: Lines X-Y in target spec
-   - **Commit**: `[suggested commit message]`
-   - **Compiles**: [Yes/No/After Task N] | **Tests Pass**: [Yes/No/Some fail - OK]
-   - **Notes**: [Dependencies or known breakage]
+   **Spec Reference**:
+   - Listener: `listen_X` (lines A-B)
+   - Handler: `handler_Y` (lines C-D)
 
-   ---
-
-   ### Task 2: Add [minimal data structures needed by transition]
-   - [ ] Add field X to struct Y
-   - [ ] Update constructor Z
-   - **Enables**: Task 1 to compile
-   - **Commit**: `[suggested commit message]`
-   - **Compiles**: Yes | **Tests Pass**: [Status]
+   ### Task 1.1: Implement listener `listen_X`
+   - [ ] Create/modify function [file:line]
+   - [ ] Implement guard conditions from spec
+   - [ ] Return correct parameter type
+   - **Spec Mapping**: Lines A-B → [code location]
+   - **Commit**: `feat: implement listen_X for [transition]`
+   - **Compiles**: [Yes/No/After Task N.M] | **Tests Pass**: [status]
 
    ---
 
-   ## Phase 2: [Second Transition Name]
+   ### Task 1.2: Implement handler `handler_Y`
+   - [ ] Create/modify function [file:line]
+   - [ ] Implement state transitions from spec
+   - [ ] Implement effects from spec
+   - **Spec Mapping**: Lines C-D → [code location]
+   - **Commit**: `feat: implement handler_Y for [transition]`
+   - **Compiles**: [Yes/No/After Task N.M] | **Tests Pass**: [status]
+
+   ---
+
+   ### Task 1.3: Add required data structures (if needed)
+   - [ ] Add type/field X (only if needed by this part)
+   - **Commit**: `feat: add types for listen_X/handler_Y`
+   - **Compiles**: Yes | **Tests Pass**: [status]
+
+   ---
+
+   ## Part 2: [next listener/handler from main_listener]
    ...
 
    ## Progress Tracking
 
-   **Phase 1**: 0/X tasks complete
-   **Phase 2**: 0/Y tasks complete
+   **Part 1**: 0/X tasks complete
+   **Part 2**: 0/Y tasks complete
    ...
    **Overall**: 0/N tasks complete (0%)
 
    ## Notes
 
-   - Tasks may break existing tests - this is expected and acceptable
-   - Some tasks won't compile until dependent tasks are completed
-   - Old tests testing removed transitions should be deleted
-   - Focus is on implementing the target spec, not preserving old behavior
+   - Parts follow the EXACT order from `main_listener` in target spec
+   - Each part is independent and implements one transition
+   - Tasks may break existing tests - this is expected
+   - Data structures added only when needed by specific part
    ```
 
-5. **Prioritize Transition-First Approach**:
-   - **Start immediately with the first transition implementation** from the target spec
-   - The very first task/commit should implement actual transition logic, not setup or infrastructure
-   - Identify transitions that can be implemented with minimal or zero changes to existing data structures:
-     * Look for transitions that work with structures that already exist
-     * Look for transitions that only modify logic/algorithms, not data types
-     * Look for "listener" or "guard" functions that just check conditions
-     * Look for transitions that can reuse existing message types or state fields
-   - Only add data structure changes (new state fields, message types, enums) **when they become necessary** for a transition
-   - This keeps work concrete, focused on behavior, and immediately testable
-   - Infrastructure and types should emerge naturally from implementing transitions
-   - Example progression: Implement listener → Implement handler → Add new state field needed by handler → Implement next transition that uses that field
+5. **Follow `main_listener` Structure**:
+   - **Extract transitions from `main_listener`**: Find the function in the target spec that aggregates all transitions (usually called `main_listener`, `step`, or similar)
+   - **Create one Part per entry**: Each `cue(listen_fn, handler_fn)` or `on_timeout_X()` becomes one Part
+   - **Preserve exact order**: Parts must follow the EXACT order from the spec file
+   - **Break down each Part**:
+     * Task N.1: Implement the listener function (the guard/condition checking)
+     * Task N.2: Implement the handler function (the state transition)
+     * Task N.3: Add any data structures needed (only if required by this Part)
+   - **Why this approach works**:
+     * Spec-driven: Every transition in the spec gets implemented
+     * Natural ordering: The spec author chose this order for dependencies
+     * Testable: Each listener/handler is independently testable
+     * Traceable: Direct 1:1 mapping between spec entries and task parts
+     * Incremental: Build up the system transition-by-transition
 
 6. **Migration Philosophy - Direct Implementation**:
    - **No backward compatibility**: You are changing the codebase to match the new spec, not maintaining parallel implementations
@@ -104,14 +121,15 @@ When you begin work, you will:
    - Each commit should move the codebase closer to the target spec, even if it temporarily breaks some functionality
 
 7. **Task Organization Principles**:
-   - Each task represents one atomic commit focused on a specific transition or sub-behavior
-   - The first task should implement the first meaningful transition from the target spec (e.g., a listener function, a state transition handler)
-   - Subsequent tasks build on previous work by adding the next transition or the minimal data structures needed
-   - Tasks may not compile initially if they depend on types not yet added - that's acceptable
-   - Tasks may cause existing tests to fail - include "Update/remove obsolete tests" as part of the task
-   - Include specific file paths, line numbers, function names, and spec references
-   - Note dependencies: "Requires Task X to compile" or "Will enable compilation of Task Y"
-   - Keep commits small and focused on single concerns
+   - Each Part corresponds to ONE entry from `main_listener`
+   - Each task within a Part is one atomic commit
+   - Task numbering: Part N, Task N.M (e.g., Part 1 has Tasks 1.1, 1.2, 1.3)
+   - Parts are implemented in order, but tasks within a Part can sometimes be reordered if dependencies require it
+   - Tasks may not compile initially if they depend on types not yet added - mark as "Compiles: After Task N.M"
+   - Tasks may cause existing tests to fail - this is expected and acceptable
+   - Include specific file paths, line numbers, function names, and spec line references
+   - Note dependencies between tasks/parts clearly
+   - Keep commits small and focused on implementing one piece of the spec
 
 ### Phase 2: Incremental Implementation
 
