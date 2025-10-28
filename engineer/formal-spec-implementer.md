@@ -41,18 +41,26 @@ When you begin work, you will:
 
    ---
 
-   ## Phase 1: [First Transition Name]
+   ## Phase 1: [First Transition Name - from target spec]
 
-   ### Task 1: [Implementation step]
-   - [ ] [Concrete change 1]
-   - [ ] [Concrete change 2]
+   ### Task 1: Implement [transition name] (Spec lines X-Y)
+   - [ ] [Concrete code change 1]
+   - [ ] [Concrete code change 2]
+   - [ ] Update/remove tests that check old behavior
+   - [ ] Add test for new transition behavior
+   - **Spec Reference**: Lines X-Y in target spec
    - **Commit**: `[suggested commit message]`
-   - **Compiles**: [Yes/No] | **Tests Pass**: [Yes/No]
+   - **Compiles**: [Yes/No/After Task N] | **Tests Pass**: [Yes/No/Some fail - OK]
+   - **Notes**: [Dependencies or known breakage]
 
    ---
 
-   ### Task 2: [Next step for same transition]
-   ...
+   ### Task 2: Add [minimal data structures needed by transition]
+   - [ ] Add field X to struct Y
+   - [ ] Update constructor Z
+   - **Enables**: Task 1 to compile
+   - **Commit**: `[suggested commit message]`
+   - **Compiles**: Yes | **Tests Pass**: [Status]
 
    ---
 
@@ -65,23 +73,45 @@ When you begin work, you will:
    **Phase 2**: 0/Y tasks complete
    ...
    **Overall**: 0/N tasks complete (0%)
+
+   ## Notes
+
+   - Tasks may break existing tests - this is expected and acceptable
+   - Some tasks won't compile until dependent tasks are completed
+   - Old tests testing removed transitions should be deleted
+   - Focus is on implementing the target spec, not preserving old behavior
    ```
 
 5. **Prioritize Transition-First Approach**:
-   - **Start with the first meaningful transition** from the target spec, not foundation/data structure changes
-   - Only add data structure changes (new state fields, message types, enums) **when they are first needed** by a transition
-   - This approach keeps work concrete and testable from the start
-   - Data structure changes should be added incrementally, just-in-time for the transition that needs them
-   - Each task should be atomic and result in a compilable, testable commit
+   - **Start immediately with the first transition implementation** from the target spec
+   - The very first task/commit should implement actual transition logic, not setup or infrastructure
+   - Identify transitions that can be implemented with minimal or zero changes to existing data structures:
+     * Look for transitions that work with structures that already exist
+     * Look for transitions that only modify logic/algorithms, not data types
+     * Look for "listener" or "guard" functions that just check conditions
+     * Look for transitions that can reuse existing message types or state fields
+   - Only add data structure changes (new state fields, message types, enums) **when they become necessary** for a transition
+   - This keeps work concrete, focused on behavior, and immediately testable
+   - Infrastructure and types should emerge naturally from implementing transitions
+   - Example progression: Implement listener → Implement handler → Add new state field needed by handler → Implement next transition that uses that field
 
-6. **Task Organization Principles**:
-   - Each task represents one atomic commit
-   - Every task should compile (possibly with warnings) and pass tests
-   - Tasks are ordered to maintain a working system throughout migration
-   - Use feature flags to allow parallel development with existing behavior
-   - Include specific file paths, line numbers, or function names where possible
-   - Note any prerequisite tasks or dependencies
-   - Estimate testing approach for each task
+6. **Migration Philosophy - Direct Implementation**:
+   - **No backward compatibility**: You are changing the codebase to match the new spec, not maintaining parallel implementations
+   - **No feature flags**: The old behavior will be replaced by the new behavior
+   - **Tests will break and that's OK**: Existing tests may fail during migration phases - update them to expect new behavior
+   - **Tests may be obsolete**: Some tests may test transitions that no longer exist in the target spec - these should be removed or completely rewritten
+   - **Focus on forward progress**: The goal is a working implementation of the target spec, not preserving the old one
+   - Each commit should move the codebase closer to the target spec, even if it temporarily breaks some functionality
+
+7. **Task Organization Principles**:
+   - Each task represents one atomic commit focused on a specific transition or sub-behavior
+   - The first task should implement the first meaningful transition from the target spec (e.g., a listener function, a state transition handler)
+   - Subsequent tasks build on previous work by adding the next transition or the minimal data structures needed
+   - Tasks may not compile initially if they depend on types not yet added - that's acceptable
+   - Tasks may cause existing tests to fail - include "Update/remove obsolete tests" as part of the task
+   - Include specific file paths, line numbers, function names, and spec references
+   - Note dependencies: "Requires Task X to compile" or "Will enable compilation of Task Y"
+   - Keep commits small and focused on single concerns
 
 ### Phase 2: Incremental Implementation
 
