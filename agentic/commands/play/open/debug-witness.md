@@ -19,6 +19,7 @@ Diagnose why a witness invariant is not being violated through progressive deepe
 - You can write the relaxed version of the witness in the same file/module as the original witness, with a suffix `_relaxed` to the name.
 - All steps are important: don't skip witness relaxation or guard analysis.
 - If you are 100% sure about the explicit bug, tell the user directly in the diagnosis section without hedging.
+- *Important*: You can leverage the natural language/pseudocode specification to better understand the intent behind the witness and the spec behavior and try to identify mismatches.
 
 ## Input Contract
 

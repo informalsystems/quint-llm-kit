@@ -1,8 +1,8 @@
 # Implementer: Code Generation and Modification Guidelines
 
-**Version**: 4.0.0
+**Version**: 5.0.0
 
-**Purpose**: Reference for applying spec changes with insertion rules, code generation patterns, and error recovery protocols.
+**Purpose**: Reference for applying spec changes with insertion rules, code generation patterns, and immediate verification.
 
 **When to use**: During apply command when implementing ADD, MODIFY, and REMOVE operations.
 
@@ -348,233 +348,15 @@ new_string = "def propose = all {\n  not(hasTimeout(round)),\n  updateState(...)
 
 ### After EVERY Change
 
-**Step 1: Parse Check**
-```
-Execute: quint parse <spec_path>
-Check: exit_code == 0
-
-If exit_code != 0:
-  Proceed to Parse Error Recovery
-Else:
-  Proceed to Step 2
-```
-
-**Step 2: Typecheck**
+**Typecheck**
 ```
 Execute: quint typecheck <spec_path>
 Check: exit_code == 0
 
 If exit_code != 0:
-  Proceed to Type Error Recovery
+  See iteration.md for Type Error Recovery
 Else:
   Record: Change verified successfully
-```
-
----
-
-## Error Recovery Protocols
-
-### Parse Error Recovery
-
-**Detection**:
-```
-quint parse <spec_path> returns non-zero exit code
-Error message displayed
-```
-
-**Analysis Decision Tree**:
-```
-Read error message
-Extract: error_type, line_number, description
-
-If error_type == "SyntaxError":
-  Branch: Syntax Error Protocol
-Else if error_type == "UnexpectedToken":
-  Branch: Token Error Protocol
-Else if line_number in [insertion_range]:
-  Branch: Insertion Error Protocol
-Else:
-  Branch: Unknown Error Protocol
-```
-
-**Syntax Error Protocol**:
-```
-Step 1: Identify cause
-  Common causes:
-    - Missing closing brace: Count {}, add missing
-    - Missing comma: Check list/record syntax
-    - Wrong operator: Query KB for correct syntax
-    - Typo in keyword: Check spelling
-
-Step 2: Fix attempt 1
-  If missing_brace:
-    Add closing brace at appropriate location
-  Else if missing_comma:
-    Add comma to last list item
-  Else if wrong_operator:
-    Query KB: quint_get_doc("<construct> syntax")
-    Replace with correct operator
-
-Step 3: Retry parse
-  If success: Continue
-  Else: Attempt 2
-
-Step 4: Fix attempt 2
-  Query KB: quint_hybrid_search("common parse errors quint")
-  Apply suggested fix
-
-Step 5: Retry parse
-  If success: Continue
-  Else: Revert change, report to user
-```
-
-**Insertion Error Protocol**:
-```
-Step 1: Verify insertion point
-  Read file around insertion_point
-  Check: Is scope correct? (inside module, not inside another def)
-
-Step 2: Try alternate insertion point
-  If current: After line X
-  Try: After line X+5 or X-5
-  Regenerate with new insertion point
-
-Step 3: Retry parse
-  If success: Continue
-  Else: Revert, report issue to user
-```
-
-**Example Recovery**:
-
-**Scenario**: Parse error after adding type
-```
-Error: Unexpected token '}' at line 27
-```
-
-**Recovery Steps**:
-```
-1. Read lines 25-30
-2. Notice: Missing closing pipe on union type
-3. Fix:
-   old = "type TimeoutEvent =\n  | RequestTimeout\n  | PrepareTimeout"
-   new = "type TimeoutEvent =\n  | RequestTimeout\n  | PrepareTimeout\n  | CommitTimeout"
-4. Retry: quint parse → success
-```
-
-### Type Error Recovery
-
-**Detection**:
-```
-quint typecheck <spec_path> returns non-zero exit code
-Error message contains type mismatch details
-```
-
-**Analysis Decision Tree**:
-```
-Read error message
-Extract: error_location, expected_type, actual_type
-
-If "not in scope":
-  Branch: Scope Error Protocol
-Else if "type mismatch":
-  Branch: Type Mismatch Protocol
-Else if "missing type annotation":
-  Branch: Annotation Protocol
-Else:
-  Branch: Unknown Type Error Protocol
-```
-
-**Scope Error Protocol**:
-```
-Error format: "Type <Name> not in scope at line X"
-
-Step 1: Verify definition exists
-  Execute: grep "type <Name>" <spec_path>
-
-  If not found:
-    Add missing type definition
-  Else:
-    Proceed to Step 2
-
-Step 2: Check module boundaries
-  Read: Module declaration above error line
-  Read: Module declaration above type definition
-
-  If different modules:
-    Check: Does import exist?
-      If no: Add import statement
-      If yes: Import might be wrong, check syntax
-
-Step 3: Retry typecheck
-  If success: Continue
-  Else: Query KB about type visibility rules
-```
-
-**Type Mismatch Protocol**:
-```
-Error format: "Expected <TypeA>, got <TypeB> at line X"
-
-Step 1: Analyze context
-  Read: Code at line X
-  Determine: Is this from our change or existing code?
-
-  If from our change:
-    Review refactor plan: What type should it be?
-    Fix: Use correct type in generated code
-  Else:
-    Our change broke existing code
-    Revert change, report to user
-
-Step 2: Retry typecheck
-```
-
-**Annotation Protocol**:
-```
-Error format: "Missing type annotation for <name>"
-
-Step 1: Add explicit type
-  If name in refactor plan:
-    Use type from plan details
-  Else:
-    Query KB: quint_hybrid_search("type inference <construct>")
-
-Step 2: Add annotation
-  Pattern: def <name>: <Type> = <body>
-
-Step 3: Retry typecheck
-```
-
-**Example Recovery**:
-
-**Scenario**: Type not in scope
-```
-Error: Type TimeoutEvent not in scope at line 75
-  in action handleTimeout
-```
-
-**Recovery Steps**:
-```
-1. Verify TimeoutEvent exists:
-   grep "type TimeoutEvent" consensus.qnt
-   → Found at line 25
-
-2. Check modules:
-   Line 25 in module: Consensus
-   Line 75 in module: Consensus (same module)
-
-3. Check if TimeoutEvent defined AFTER usage:
-   Line 25: TimeoutEvent definition
-   Line 75: handleTimeout using TimeoutEvent
-   → Order is correct
-
-4. Read line 75 exactly:
-   "pure def processTimeout(e: TimeoutEvent): Bool = ..."
-
-5. Hypothesis: Maybe pure def needs to be after state vars?
-   Query KB: quint_hybrid_search("quint type visibility rules")
-
-6. Try fix: Move TimeoutEvent closer to usage
-7. Retry typecheck → success
 ```
 
 ---
@@ -584,17 +366,12 @@ Error: Type TimeoutEvent not in scope at line 75
 Execute after each change (mandatory):
 
 ```
-Step 1: Parse verification
-  [ ] quint parse <spec_path> returns exit_code 0
-
-  If fails: Execute Parse Error Recovery Protocol
-
-Step 2: Typecheck verification
+Step 1: Typecheck verification
   [ ] quint typecheck <spec_path> returns exit_code 0
 
-  If fails: Execute Type Error Recovery Protocol
+  If fails: See iteration.md
 
-Step 3: Change documentation
+Step 2: Change documentation
   [ ] Record: Changed <item_name> at line <X>
   [ ] Record: Verification status (parse ✓, typecheck ✓)
 ```
@@ -625,89 +402,8 @@ Check: All references still valid (no broken references)
 ```
 Purpose: Ensure spec is executable
 
-Execute: quint run <spec_path> --max-steps=5
+Execute: quint run <spec_path> --max-steps=10 --max-samples=10 --backend=rust
 Check: No runtime errors in first 5 steps
-```
-
----
-
-## Complete Change Application Example
-
-**Refactor Plan**:
-```json
-{
-  "item": "action",
-  "name": "step",
-  "change": "modify",
-  "details": "Add handleTimeout to any{} choices in step action",
-  "line_ref": 45
-}
-```
-
-**Execution Steps**:
-
-**Step 1: Locate target**
-```bash
-grep -n "def step" consensus.qnt
-→ 45:def step = any {
-
-Read consensus.qnt lines 45-50
-```
-
-**Step 2: Read current code**
-```quint
-def step = any {
-  propose,
-  prevote,
-  precommit
-}
-```
-
-**Step 3: Determine modification**
-```
-Pattern: Adding to any{} choices
-Strategy: Insert before closing brace
-New element: handleTimeout
-```
-
-**Step 4: Construct Edit**
-```
-old_string = "  precommit\n}"
-new_string = "  precommit,\n  handleTimeout\n}"
-```
-
-**Step 5: Apply Edit**
-```
-Edit consensus.qnt, old_string, new_string
-```
-
-**Step 6: Immediate Verification**
-```bash
-quint parse consensus.qnt
-→ Exit code: 0 ✓
-
-quint typecheck consensus.qnt
-→ Exit code: 0 ✓
-```
-
-**Step 7: Optional Verification**
-```bash
-# Verify handleTimeout exists
-grep "def handleTimeout" consensus.qnt
-→ 60:def handleTimeout = ...
-✓ Definition exists
-
-# LSP hover on step to check type
-mcp__quint-lsp__textDocument/hover {line: 45, char: 5}
-→ Returns: action type
-✓ Type correct
-```
-
-**Step 8: Record Success**
-```
-Modified: step action at line 45
-Change: Added handleTimeout to any{} choices
-Verification: parse ✓, typecheck ✓, definition exists ✓
 ```
 
 ---
@@ -718,9 +414,9 @@ Stop and ask user for guidance if:
 
 ### Condition 1: Max Retry Attempts Exceeded
 ```
-If parse_error_attempts >= 3:
+If parse_error_attempts >= 5:
   Revert: Last change
-  Report: "Cannot fix parse error after 3 attempts: <error_details>"
+  Report: "Cannot fix parse error after 5 attempts: <error_details>"
   Ask: "How should I proceed?"
 ```
 
@@ -785,15 +481,3 @@ Only when ALL conditions met: Mark change as successfully applied.
 | Quick test | Bash | `quint run <file> --max-steps=5` |
 
 ---
-
-## Version Notes
-
-**v4.0.0 Changes**:
-- Removed vague language ("should", "try to", "consider")
-- Added insertion point decision matrix with explicit logic
-- Added code generation protocol with numbered steps
-- Transformed error recovery to decision trees with protocols
-- Added complete example with verification steps
-- Specified max retry attempts (3) before escalation
-- Added escalation criteria with Boolean conditions
-- Made verification checklist mandatory vs optional

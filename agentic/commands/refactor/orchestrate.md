@@ -621,7 +621,7 @@ Track pipeline progress in `.artifacts/pipeline-state.json`:
 
 Before marking pipeline as complete:
 - [ ] User approved refactor plan (or auto_approve=true)
-- [ ] Implementer validation passed (parse + typecheck)
+- [ ] Implementer validation passed
 - [ ] All planned changes applied
 - [ ] verifier executed on all module instances
 - [ ] Critical bugs resolved or documented

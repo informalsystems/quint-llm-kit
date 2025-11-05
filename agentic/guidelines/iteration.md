@@ -1,6 +1,6 @@
 # Implementer: Validation Failure and Iteration Protocols
 
-**Version**: 4.0.0
+**Version**: 5.0.0
 
 **Purpose**: Reference for handling validation failures with decision trees, fix protocols, and iteration limits.
 
@@ -61,18 +61,6 @@ Else (error in untouched code):
 ### Phase 2: Generated Code Error Protocol
 
 **When**: Error in code we just added/modified
-
-**Diagnosis Steps**:
-```
-Step 1: Read code at error_line
-  Execute: Read <file> lines <error_line-5>:<error_line+5>
-
-Step 2: Identify syntax issue category
-  Check error_message for keywords:
-    - "missing": Missing element (comma, brace, etc.)
-    - "unexpected": Wrong token or structure
-    - "expected": Wrong syntax pattern
-```
 
 **Fix Attempt 1: Simple Syntax Correction**
 ```
@@ -143,13 +131,9 @@ If attempt_count >= 3 AND parse still fails:
     "Cannot fix parse error after 3 attempts:
      Error: <error_message>
      Location: <file>:<error_line>
-     Attempts:
-       1. <fix_attempt_1_description>
-       2. <fix_attempt_2_description>
-       3. <fix_attempt_3_description>
+     Attempts: <attempt_descriptions>
 
-     Generated code:
-     <code_snippet>
+     Generated code: <code_snippet>
 
      How should I proceed?"
 ```
@@ -157,6 +141,8 @@ If attempt_count >= 3 AND parse still fails:
 ### Phase 3: Collateral Damage Protocol
 
 **When**: Error in code we didn't modify
+
+**Critical Insight**: Our change broke unrelated code
 
 **Analysis**:
 ```
@@ -275,7 +261,7 @@ If definition_line > usage_line:
 
   Move: Definition to earlier position
     New position: Before first usage
-    Use: Insertion point decision matrix from implementation.md
+    Use: Insertion point logic from implementation.md
 
 Execute: quint typecheck <file>
 If success: Return "fixed"
@@ -286,7 +272,7 @@ Else: Escalate with detailed analysis
 
 **When**: Expected type X, got type Y
 
-**Analysis**:
+**Strategy**:
 ```
 Step 1: Locate mismatch source
   Read: Code at error_location
@@ -303,21 +289,14 @@ Step 2: If from our change:
 Step 3: If not from our change:
   Our change broke existing code
   Analyze: How did our change affect this?
-```
 
-**Fix Strategy**:
-```
-If our_code AND wrong_type:
-  Correct: Type in our generated code
-  Execute: quint typecheck <file>
+  Options:
+    1. Add type coercion at usage site
+    2. Change our type to match expected
+    3. Revert our change
 
-Else if collateral_damage:
-  Option 1: Add type coercion at usage site
-  Option 2: Change our type to match expected
-  Option 3: Revert our change
-
-  Try: Option 1
-  If fails after 2 attempts: Escalate to user
+  Try: Option 1 first
+  If fails after 2 attempts: Escalate
 ```
 
 ### Phase 4: Annotation Protocol
@@ -478,145 +457,31 @@ If iteration_count >= max_iterations AND issues_remaining.length > 0:
 
 ---
 
-## Quality Self-Check Protocol
-
-### Execute Before Reporting Success
-
-**Mandatory Checks**:
-```
-Step 1: Completeness Verification
-  For each change in refactor plan:
-    Check: Exists in refactored spec? [yes/no]
-
-  If ANY == no:
-    Record: missing_changes
-    Fail: Quality check
-  Else:
-    Pass: Completeness
-
-Step 2: Correctness Verification
-  For each modification (where type == "modify"):
-    Read: Modified code
-    Compare: Against plan.details
-    Check: Modification matches intent? [yes/no]
-
-  If ANY == no:
-    Record: incorrect_modifications
-    Fail: Quality check
-  Else:
-    Pass: Correctness
-
-Step 3: No Regression Verification
-  If existing tests available:
-    Execute: quint test <test_file> --match=".*"
-    Check: All tests pass? [yes/no]
-
-    If no:
-      Record: failing_tests
-      Fail: Quality check
-  Else:
-    Pass: No regression (no tests to verify)
-
-Step 4: Pattern Compliance Verification
-  For each pattern in plan.patterns_to_apply:
-    Verify: Pattern applied correctly? [yes/no]
-    Example: thin-actions → check action delegates to pure function
-
-  If ANY == no:
-    Record: unapplied_patterns
-    Fail: Quality check
-  Else:
-    Pass: Pattern compliance
-```
-
-**Decision**:
-```
-Calculate: passed_checks / total_checks
-
-If passed_checks == total_checks:
-  quality_status = "ready_for_approval"
-Else:
-  quality_status = "needs_iteration"
-  Required: Address failed checks before reporting success
-```
-
----
-
 ## Escalation Criteria
 
-### Condition 1: Max Iterations Exceeded
+Stop and ask user for guidance if ANY condition true:
 
+| Condition | Trigger | Action |
+|-----------|---------|--------|
+| **Max Iterations** | iteration_count >= 3 AND issues remain | Revert all changes, report attempts, ask for guidance |
+| **Breaking Change** | Typecheck fails in untouched code | Report what broke, ask "Continue anyway?" |
+| **Ambiguous Plan** | Plan details insufficient for implementation | Report ambiguity, ask for clarification |
+| **Conflicting Goals** | Two goals contradict each other | Report conflict, ask which takes precedence |
+
+**Escalation Template**:
 ```
-If iteration_count >= 3 AND issues_remaining.length > 0:
-  Revert: All changes (restore original spec)
+"<Problem Title>
 
-  Report to user:
-    "Validation failed after 3 iteration attempts.
+<Detailed description of what went wrong>
 
-     Remaining issues:
-     <list of issues with details>
+Attempted fixes:
+  1. <fix_1>: <result>
+  2. <fix_2>: <result>
+  3. <fix_3>: <result>
 
-     Iteration history:
-     Iteration 1: <what was attempted, result>
-     Iteration 2: <what was attempted, result>
-     Iteration 3: <what was attempted, result>
+<Specific question for user>
 
-     Recommendation: <specific recommendation based on issue pattern>
-
-     How should I proceed?"
-```
-
-### Condition 2: Breaking Change Detected
-
-```
-If validation breaks existing functionality:
-  Evidence:
-    - Tests that passed on original now fail
-    - Type errors in untouched code
-    - Parse errors outside modified sections
-
-  Report to user:
-    "Refactoring introduced breaking changes:
-
-     Breaking changes:
-     <list with locations>
-
-     This is outside the scope of the refactor plan.
-
-     Continue anyway? (yes/no)"
-```
-
-### Condition 3: Ambiguous Plan
-
-```
-If refactor plan details insufficient for implementation:
-  Example: "Modify step action" (no specifics)
-
-  Report to user:
-    "Cannot complete change due to ambiguous plan:
-
-     Plan says: '<plan.details>'
-     Issue: Not specific enough to implement
-
-     Need clarification: <specific questions>
-
-     How should I proceed?"
-```
-
-### Condition 4: Conflicting Goals
-
-```
-If two goals conflict:
-  Example: Goal 1 adds field X, Goal 2 removes field X
-
-  Report to user:
-    "Refactor plan contains conflicting goals:
-
-     Goal A: <description>
-     Goal B: <description>
-     Conflict: <explanation>
-
-     Which goal should take precedence?"
+How should I proceed?"
 ```
 
 ---
@@ -631,7 +496,6 @@ If two goals conflict:
 | Existing tests pass | pass/fail/n/a | High | If tests exist |
 | Patterns applied | pass/fail | Medium | If patterns specified |
 | No unintended changes | pass/fail | Medium | Yes |
-| Formatting preserved | pass/fail | Low | No |
 
 **Decision Logic**:
 ```
@@ -640,9 +504,6 @@ If no: Cannot report success, must iterate
 
 Check: All "High" checks == pass OR n/a? [yes/no]
 If no: Should iterate or escalate
-
-Check: All "Medium" checks == pass? [yes/no]
-If no: Consider iterating if attempts remain
 
 If all_critical_pass AND all_high_pass:
   Report: status = "completed"
@@ -655,26 +516,24 @@ Else:
 
 ---
 
-## Validation Command Execution Matrix
+## Common Error Patterns (Quick Reference)
 
-| Validation Type | Command | Expected Exit Code | When to Run |
-|----------------|---------|-------------------|-------------|
-| Parse | `quint parse <file>` | 0 | After every change, after every fix |
-| Typecheck | `quint typecheck <file>` | 0 | After parse succeeds |
-| Test (if exists) | `quint test <test_file> --match=".*"` | 0 | After typecheck succeeds |
-| LSP hover (optional) | `mcp__quint-lsp__textDocument/hover` | N/A (check return) | For high-risk changes |
-| Diff check | `diff -u <original> <refactored>` | N/A (manual review) | Before reporting success |
+### Parse Errors
+
+| Error Message | Cause | Fix |
+|---------------|-------|-----|
+| "missing closing brace" | Unbalanced {} | Count braces, add missing } |
+| "missing comma" | Last item in list | Add comma after last item |
+| "unexpected token '}'" | Extra closing brace OR missing opening | Check brace pairing |
+| "unexpected token in module" | Wrong insertion point | Try alternate insertion point |
+
+### Type Errors
+
+| Error Message | Cause | Fix |
+|---------------|-------|-----|
+| "X not in scope" | Missing definition or import | Add definition or import statement |
+| "expected Int, got Bool" | Type mismatch | Check plan, use correct type |
+| "missing type annotation" | Quint can't infer type | Add explicit type annotation |
+| "circular definition" | Type uses itself incorrectly | Reorder or restructure definition |
 
 ---
-
-## Version Notes
-
-**v4.0.0 Changes**:
-- Removed vague language ("should", "try to", "consider checking")
-- Transformed to decision trees with explicit routing logic
-- Added three-phase protocols (Diagnosis → Fix → Verification) for each error type
-- Specified max iteration count (3) with explicit escalation criteria
-- Added quality self-check protocol with Boolean pass/fail checks
-- Transformed success criteria to decision matrix
-- Made all conditionals explicit with [yes/no] checks
-- Added escalation templates with specific information requirements

@@ -401,6 +401,7 @@ Try increasing --max-steps or check if action is reachable.
         }
         ```
       - Add descriptive comment based on counterexample
+    - *Important*: Ensure the runs are not just `.init.then(step)` loops but include actual action invocations. Try hard to achieve this.
 
 22. **Generate Variant Tests**
     - If multiple counterexamples found for same action:
