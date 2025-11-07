@@ -178,9 +178,30 @@ When you begin work, you will:
 
    **GOAL**: Minimize user questions by doing thorough analysis. Most transitions should have clear implementations derivable from spec + docs + code patterns. Only ask about genuinely ambiguous architectural choices.
 
-6. **Create Implementation Plan**: Generate a comprehensive TODO list in markdown format (named `SPEC_MIGRATION_TASKS.md`) organized by the `main_listener` function from the target spec.
+6. **Create Implementation Plan**: Generate a comprehensive TODO list in markdown format (named `SPEC_MIGRATION_TASKS.md`) that interleaves implementation parts with MBT validation parts.
 
-   **CRITICAL**: Find the `main_listener` (or equivalent aggregation function) in the target spec that lists all transitions. Extract each listener/handler pair (e.g., `cue(listen_X, handler_Y)` or timeout handlers like `on_timeout_Z`). Create one "Part" for each entry in the EXACT order they appear in `main_listener`.
+   **CRITICAL UNDERSTANDING**: The plan is NOT "all implementation parts, then all MBT parts". Instead, it's an INTERLEAVED sequence where MBT parts appear IMMEDIATELY after the transitions they validate. Example: Impl Part 1 → Impl Part 2 → **MBT Part 3 validates 1-2** → Impl Part 4 → Impl Part 5 → **MBT Part 6 validates 4-5** → etc.
+
+   **CRITICAL - Planning Workflow**:
+
+   **Step 1**: Extract all listener/handler pairs from `main_listener` (or equivalent aggregation function) in the target spec. These become implementation parts in the order they appear in the spec.
+
+   **Step 2**: Analyze ALL Quint test functions (usually prefixed with `run`) in the target spec. For each test:
+   - Identify which transitions (listener/handler pairs) it exercises
+   - Determine the last implementation part it depends on
+   - Plan to insert an MBT validation part IMMEDIATELY after that implementation part
+
+   **Step 3**: Create a merged sequence where:
+   - Implementation parts follow the `main_listener` order
+   - MBT validation parts are inserted IMMEDIATELY after their dependencies
+   - Example: If `runBasicTest` exercises transitions from Parts 1-2, the sequence is:
+     * Part 1: [implementation for first transition]
+     * Part 2: [implementation for second transition]
+     * Part 3: MBT Validation for `runBasicTest` ← IMMEDIATE insertion
+     * Part 4: [implementation for third transition]
+     * ...
+
+   **Step 4**: Generate SPEC_MIGRATION_TASKS.md with this merged, interleaved sequence.
 
    The format should be:
 
@@ -190,7 +211,9 @@ When you begin work, you will:
    **Generated**: [Date]
    **Based on**: [spec files]
    **Source**: `main_listener` function in target spec (lines X-Y)
-   **Total Parts**: [number of entries in main_listener]
+   **Total Parts**: [number of implementation parts + MBT validation parts]
+   **Implementation Parts**: [number from main_listener]
+   **MBT Validation Parts**: [number of Quint test functions]
 
    **Divergences Found**: [List any divergences between spec and protocol description - MUST BE CLARIFIED BEFORE PROCEEDING]
 
@@ -298,17 +321,20 @@ When you begin work, you will:
 
    ## Notes
 
-   - Parts follow the EXACT order from `main_listener` in target spec
-   - Each implementation part is independent and implements one transition
-   - MBT validation parts are inserted IMMEDIATELY after their dependent parts
+   - Implementation parts follow the EXACT order from `main_listener` in target spec
+   - MBT validation parts are INTERLEAVED immediately after their dependencies
+   - Example sequence: Impl Part 1 → Impl Part 2 → MBT Part 3 (validates 1-2) → Impl Part 4 → Impl Part 5 → MBT Part 6 (validates 4-5)
+   - Each implementation part implements one transition (listener + handler)
+   - Each MBT validation part validates multiple transitions against one Quint test
    - Tasks may break existing tests - this is expected
    - Data structures added only when needed by specific part
    ```
 
-7. **Follow `main_listener` Structure**:
+7. **Follow `main_listener` Structure for Implementation Parts**:
    - **Extract transitions from `main_listener`**: Find the function in the target spec that aggregates all transitions (usually called `main_listener`, `step`, or similar)
-   - **Create one Part per entry**: Each `cue(listen_fn, handler_fn)` or `on_timeout_X()` becomes one Part
-   - **Preserve exact order**: Parts must follow the EXACT order from the spec file
+   - **Create one implementation Part per entry**: Each `cue(listen_fn, handler_fn)` or `on_timeout_X()` becomes one implementation Part
+   - **Preserve exact order for implementation parts**: Implementation parts must follow the EXACT order from the spec file
+   - **Interleave MBT parts**: Insert MBT validation parts IMMEDIATELY after the last implementation part they depend on (see Step 2-3 above)
    - **Break down each Part**:
      * Task N.1: Implement the listener function (the guard/condition checking)
      * Task N.2: Implement the handler function (the state transition)
@@ -324,19 +350,17 @@ When you begin work, you will:
    - **Why this approach works**:
      * Spec-driven: Every transition in the spec gets implemented
      * Natural ordering: The spec author chose this order for dependencies
+     * Quality-gated: MBT validation catches errors before building on incorrect foundations
      * Testable: Each listener/handler is independently testable
      * Traceable: Direct 1:1 mapping between spec entries and task parts
-     * Incremental: Build up the system transition-by-transition
-   - **Insert MBT validation parts IMMEDIATELY after dependencies**:
-     * Analyze target spec to identify all Quint test functions (usually prefixed with `run`)
-     * For each Quint test, determine which transitions it exercises
-     * **CRITICAL**: Insert the MBT validation part IMMEDIATELY after the last transition it depends on
+     * Incremental: Build up the system transition-by-transition, validating as you go
+   - **MBT validation details** (elaborating on Step 2-3 above):
+     * **CRITICAL**: MBT parts are QUALITY GATES inserted IMMEDIATELY after dependencies
      * Example: If `runBasicTest` exercises transitions from Parts 1-2, then Part 3 MUST be "MBT Validation for runBasicTest", NOT Part 4
-     * **DO NOT** implement additional transitions before validating - validation gates are IMMEDIATE
-     * First MBT part includes Task N.1 (setup MBT crate) and Task N.2 (implement handlers)
-     * Subsequent MBT parts only include Task N.2 (implement new handlers)
-     * **Rationale**: Immediate validation prevents implementing additional transitions on top of potentially incorrect behavior
-     * MBT tests serve as quality gates ensuring spec compliance before proceeding
+     * **DO NOT** implement additional transitions (Part 4+) before validating (Part 3) - validation is BLOCKING
+     * First MBT part includes Task N.1 (setup MBT crate with `/quint-connect`) and Task N.2 (implement handlers)
+     * Subsequent MBT parts only include Task N.2 (implement new handlers for additional transitions)
+     * **Rationale**: Immediate validation prevents cascading errors from building on incorrect behavior
 
 8. **Migration Philosophy - Direct Implementation**:
    - **No backward compatibility**: You are changing the codebase to match the new spec, not maintaining parallel implementations
