@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import MiniSearch from 'minisearch';
+import { PATHS } from '../config/paths.js';
 import type { LexicalIndexFile, SearchDocument, SearchResult, SearchScope } from './types.js';
 
 type LexicalDoc = SearchDocument & { tagsText?: string };
@@ -20,7 +21,7 @@ export class LexicalSearch {
   private cache = new Map<SearchScope, LoadedLexicalIndex>();
 
   constructor(
-    private readonly dataDir: string = path.join(process.cwd(), 'data'),
+    private readonly dataDir: string = PATHS.data,
     private readonly lexicalDirName: string = 'lexical-indices'
   ) {}
 

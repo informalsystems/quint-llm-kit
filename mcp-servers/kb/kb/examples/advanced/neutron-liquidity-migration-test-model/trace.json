@@ -1,0 +1,998 @@
+{
+    "#meta": {
+        "format": "ITF",
+        "format-description": "https://apalache.informal.systems/docs/adr/015adr-trace.html",
+        "source": "migration_fuzzing.qnt",
+        "status": "violation",
+        "description": "Created by Quint on Tue Mar 19 2024 15:56:03 GMT+0100 (Central European Standard Time)",
+        "timestamp": 1710860163838
+    },
+    "vars": [
+        "numSteps",
+        "users",
+        "stepInfo"
+    ],
+    "states": [
+        {
+            "#meta": {
+                "index": 0
+            },
+            "numSteps": {
+                "#bigint": "0"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "init",
+                "msgArgs": {
+                    "tag": "InitArgs",
+                    "value": {
+                        "#map": [
+                            [
+                                "Alice",
+                                {
+                                    "ATOM_locked": {
+                                        "#bigint": "5000000"
+                                    },
+                                    "NTRN_locked": {
+                                        "#bigint": "100"
+                                    },
+                                    "USDC_locked": {
+                                        "#bigint": "2000"
+                                    }
+                                }
+                            ],
+                            [
+                                "Bob",
+                                {
+                                    "ATOM_locked": {
+                                        "#bigint": "5000000"
+                                    },
+                                    "NTRN_locked": {
+                                        "#bigint": "2000"
+                                    },
+                                    "USDC_locked": {
+                                        "#bigint": "30000"
+                                    }
+                                }
+                            ],
+                            [
+                                "Charlie",
+                                {
+                                    "ATOM_locked": {
+                                        "#bigint": "400000"
+                                    },
+                                    "NTRN_locked": {
+                                        "#bigint": "400000"
+                                    },
+                                    "USDC_locked": {
+                                        "#bigint": "400000"
+                                    }
+                                }
+                            ]
+                        ]
+                    }
+                },
+                "msgInfo": {
+                    "sender": ""
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 1
+            },
+            "numSteps": {
+                "#bigint": "1"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "advance_block",
+                "msgArgs": {
+                    "tag": "None",
+                    "value": {}
+                },
+                "msgInfo": {
+                    "sender": ""
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 2
+            },
+            "numSteps": {
+                "#bigint": "2"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "migrate",
+                "msgArgs": {
+                    "tag": "MigrateArgs",
+                    "value": {
+                        "user_address": "Charlie"
+                    }
+                },
+                "msgInfo": {
+                    "sender": "Charlie"
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": false,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 3
+            },
+            "numSteps": {
+                "#bigint": "3"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "advance_block",
+                "msgArgs": {
+                    "tag": "None",
+                    "value": {}
+                },
+                "msgInfo": {
+                    "sender": ""
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 4
+            },
+            "numSteps": {
+                "#bigint": "4"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "claim_rewards_xyk",
+                "msgArgs": {
+                    "tag": "ClaimRewardsArgs",
+                    "value": {
+                        "withdraw": false
+                    }
+                },
+                "msgInfo": {
+                    "sender": "Bob"
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": false,
+                            "migrated": false,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 5
+            },
+            "numSteps": {
+                "#bigint": "5"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "advance_block",
+                "msgArgs": {
+                    "tag": "None",
+                    "value": {}
+                },
+                "msgInfo": {
+                    "sender": ""
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 6
+            },
+            "numSteps": {
+                "#bigint": "6"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "migrate",
+                "msgArgs": {
+                    "tag": "MigrateArgs",
+                    "value": {
+                        "user_address": "Bob"
+                    }
+                },
+                "msgInfo": {
+                    "sender": "Alice"
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": false,
+                            "migrated": true,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 7
+            },
+            "numSteps": {
+                "#bigint": "7"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "advance_block",
+                "msgArgs": {
+                    "tag": "None",
+                    "value": {}
+                },
+                "msgInfo": {
+                    "sender": ""
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 8
+            },
+            "numSteps": {
+                "#bigint": "8"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "claim_rewards_pcl",
+                "msgArgs": {
+                    "tag": "ClaimRewardsArgs",
+                    "value": {
+                        "withdraw": false
+                    }
+                },
+                "msgInfo": {
+                    "sender": "Bob"
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": false,
+                            "migrated": true,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 9
+            },
+            "numSteps": {
+                "#bigint": "9"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "advance_block",
+                "msgArgs": {
+                    "tag": "None",
+                    "value": {}
+                },
+                "msgInfo": {
+                    "sender": ""
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 10
+            },
+            "numSteps": {
+                "#bigint": "10"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "claim_rewards_pcl",
+                "msgArgs": {
+                    "tag": "ClaimRewardsArgs",
+                    "value": {
+                        "withdraw": false
+                    }
+                },
+                "msgInfo": {
+                    "sender": "Bob"
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": false,
+                            "migrated": true,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 11
+            },
+            "numSteps": {
+                "#bigint": "11"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "User has already claimed rewards and does not withdraw",
+                "actionSuccessful": false,
+                "actionTaken": "claim_rewards_pcl",
+                "msgArgs": {
+                    "tag": "ClaimRewardsArgs",
+                    "value": {
+                        "withdraw": false
+                    }
+                },
+                "msgInfo": {
+                    "sender": "Bob"
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": false,
+                            "migrated": true,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 12
+            },
+            "numSteps": {
+                "#bigint": "12"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "advance_block",
+                "msgArgs": {
+                    "tag": "None",
+                    "value": {}
+                },
+                "msgInfo": {
+                    "sender": ""
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 13
+            },
+            "numSteps": {
+                "#bigint": "13"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "claim_rewards_pcl",
+                "msgArgs": {
+                    "tag": "ClaimRewardsArgs",
+                    "value": {
+                        "withdraw": true
+                    }
+                },
+                "msgInfo": {
+                    "sender": "Bob"
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": false,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": false
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": false,
+                            "migrated": true,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": true,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 14
+            },
+            "numSteps": {
+                "#bigint": "14"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "migrate",
+                "msgArgs": {
+                    "tag": "MigrateArgs",
+                    "value": {
+                        "user_address": "Alice"
+                    }
+                },
+                "msgInfo": {
+                    "sender": "Alice"
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": false,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": false,
+                            "migrated": true,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": true,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 15
+            },
+            "numSteps": {
+                "#bigint": "15"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "User has already claimed rewards and does not withdraw",
+                "actionSuccessful": false,
+                "actionTaken": "claim_rewards_pcl",
+                "msgArgs": {
+                    "tag": "ClaimRewardsArgs",
+                    "value": {
+                        "withdraw": false
+                    }
+                },
+                "msgInfo": {
+                    "sender": "Bob"
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": false,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": false,
+                            "migrated": true,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": true,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        },
+        {
+            "#meta": {
+                "index": 16
+            },
+            "numSteps": {
+                "#bigint": "16"
+            },
+            "stepInfo": {
+                "actionErrorDescription": "",
+                "actionSuccessful": true,
+                "actionTaken": "advance_block",
+                "msgArgs": {
+                    "tag": "None",
+                    "value": {}
+                },
+                "msgInfo": {
+                    "sender": ""
+                }
+            },
+            "users": {
+                "#map": [
+                    [
+                        "Alice",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Bob",
+                        {
+                            "has_rewards": false,
+                            "migrated": true,
+                            "only_vesting": false,
+                            "pcl_liquidity_withdrawn": true,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ],
+                    [
+                        "Charlie",
+                        {
+                            "has_rewards": true,
+                            "migrated": true,
+                            "only_vesting": true,
+                            "pcl_liquidity_withdrawn": false,
+                            "xyk_liquidity_withdrawn": true
+                        }
+                    ]
+                ]
+            }
+        }
+    ]
+}

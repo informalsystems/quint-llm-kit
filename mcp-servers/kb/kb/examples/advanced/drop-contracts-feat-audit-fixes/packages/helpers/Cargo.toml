@@ -1,0 +1,35 @@
+[package]
+authors = ["Sergey Ratiashvili <serg.s.r@gmail.com>"]
+description = "Package for Drop Puppeteer Base"
+edition = "2021"
+name = "drop-helpers"
+version = "1.0.0"
+
+exclude = [
+  # Those files are rust-optimizer artifacts. You might want to commit them for convenience but they should not be part of the source code publication.
+  "contract.wasm",
+  "hash.txt",
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# for more explicit tests, cargo test --features=backtraces
+backtraces = ["cosmwasm-std/backtraces"]
+# use library feature to disable all instantiate/execute/query exports
+library = []
+
+[dependencies]
+cosmos-sdk-proto = { workspace = true }
+cosmwasm-std = { workspace = true }
+serde-json-wasm = { workspace = true }
+neutron-sdk = { workspace = true }
+cosmwasm-schema = { workspace = true }
+thiserror = { workspace = true }
+cw-storage-plus = { workspace = true }
+serde = { workspace = true }
+schemars = { workspace = true }
+prost = { workspace = true }

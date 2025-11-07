@@ -1,7 +1,7 @@
 import { HybridSearch } from '../search/hybrid-search.js';
 import type { HybridSearchOptions, SearchResult, SearchScope } from '../search/types.js';
 
-const VALID_SCOPES: SearchScope[] = ['all', 'builtins', 'docs', 'examples', 'guidelines', 'extra'];
+const VALID_SCOPES: SearchScope[] = ['all', 'builtins', 'docs', 'examples', 'patterns', 'extra'];
 const DEFAULT_LIMIT_PER_SCOPE = 5;
 
 const hybridSearch = new HybridSearch();

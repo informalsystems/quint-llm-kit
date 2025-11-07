@@ -1,0 +1,11 @@
+.idea/
+target/
+**/schema/
+/artifacts/
+.rtx.toml
+.vscode
+node_modules
+.env
+scripts/deploy_scripts/.env.instantiate
+scripts/deploy_scripts/.env.upload
+neutron/data/

@@ -1,0 +1,24 @@
+[package]
+authors = ["Murad Karammaev <muradkarammaev@gmail.com>"]
+description = "Bond ldASSETs and let anyone to withdraw them for you permissionlessly"
+edition = "2021"
+name = "drop-auto-withdrawer"
+version = "1.0.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+backtraces = ["cosmwasm-std/backtraces"]
+library = []
+
+[dependencies]
+cosmwasm-std = { workspace = true }
+cosmwasm-schema = { workspace = true }
+neutron-sdk = { workspace = true }
+thiserror = { workspace = true }
+cw2 = { workspace = true }
+cw-storage-plus = { workspace = true }
+drop-staking-base = { workspace = true }
+drop-helpers = { workspace = true }
+semver = { workspace = true }

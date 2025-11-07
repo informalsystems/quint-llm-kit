@@ -1,6 +1,6 @@
 import fs from 'fs';
-import path from 'path';
 import { Builtin } from '../types.js';
+import { PATHS } from '../config/paths.js';
 
 let builtinsData: Record<string, Builtin> | null = null;
 
@@ -9,7 +9,7 @@ function loadBuiltins(): Record<string, Builtin> {
     return builtinsData;
   }
 
-  const dataPath = path.join(process.cwd(), 'data', 'builtins.json');
+  const dataPath = PATHS.builtins;
 
   if (!fs.existsSync(dataPath)) {
     throw new Error(

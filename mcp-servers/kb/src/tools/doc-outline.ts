@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { PATHS } from '../config/paths.js';
 
 interface RawSection {
   title: string;
@@ -22,7 +23,7 @@ interface OutlineEntry {
 const outlineCache: Map<string, OutlineEntry> = new Map();
 let outlineIndexLoaded = false;
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const DATA_DIR = PATHS.data;
 
 function slugify(text: string): string {
   return text

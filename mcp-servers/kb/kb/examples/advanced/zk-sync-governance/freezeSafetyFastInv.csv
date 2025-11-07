@@ -1,0 +1,11 @@
+laxedFreezeDisallowedOpsInv,18100
+strictFreezeAllowedOpsInv,18101
+freezeLaxedDisallowedOpsInv,18102
+hardToSoftFreezeNotAllowedInv,18103
+afterSoftFreezeInv,18104
+afterHardFreezeInv,18105
+softFreezeInv,18106
+hardFreezeInv,18107
+freezeStatusNoneInv,18108
+anyAddressMayUnfreezeInv,18109
+zkFrozenUntilWeakInv,18110

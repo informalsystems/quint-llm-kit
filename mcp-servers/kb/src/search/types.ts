@@ -4,7 +4,7 @@ export type SearchScope =
   | 'builtins'
   | 'docs'
   | 'examples'
-  | 'guidelines'
+  | 'patterns'
   | 'extra'
   | 'all';
 
