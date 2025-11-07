@@ -1,0 +1,27 @@
+{
+  "extends": ["@left-curve/config/ts/react.json"],
+  "compilerOptions": {
+    "paths": {
+      "~/*": ["./src/*"],
+      "~/constants": ["./constants.config.ts"],
+      "~/mock": ["./mockData.ts"],
+      "~/store": ["./store.config.ts"],
+      "~/datafeed": ["./datafeed.config.ts"],
+      "~/chartiq": ["./.chartiq.config.ts"]
+    },
+    "noEmit": true
+  },
+  "include": ["**/*.ts", "**/*.tsx", "env.d.ts", "../../foundation/tailwind/config.ts"],
+  "exclude": ["node_modules"],
+  "references": [
+    {
+      "path": "../../applets/kit"
+    },
+    {
+      "path": "../../../sdk/dango"
+    },
+    {
+      "path": "../../store"
+    }
+  ]
+}

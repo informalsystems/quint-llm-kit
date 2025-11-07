@@ -1,0 +1,22 @@
+[package]
+authors       = { workspace = true }
+categories    = { workspace = true }
+documentation = { workspace = true }
+edition       = { workspace = true }
+license       = { workspace = true }
+name          = "dango-auth"
+repository    = { workspace = true }
+rust-version  = { workspace = true }
+version       = { workspace = true }
+
+[dependencies]
+alloy       = { workspace = true, features = ["dyn-abi", "eip712"] }
+anyhow      = { workspace = true }
+base64      = { workspace = true }
+dango-types = { workspace = true }
+grug        = { workspace = true }
+hex         = { workspace = true }
+serde       = { workspace = true }
+sha2        = { workspace = true }
+
+[dev-dependencies]

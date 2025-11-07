@@ -1,0 +1,64 @@
+name: Faucet bot
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      faucet_version:
+        required: true
+        description: "Define faucet version for deployment"
+        default: "latest"
+      environment:
+        required: true
+        type: choice
+        description: "Define in what environment deploy"
+        default: "devnet"
+        options:
+          - "devnet"
+          - "testnet"
+
+jobs:
+  deploy-faucet:
+    permissions:
+      packages: read
+    runs-on: [self-hosted]
+    # Still using this as ENV for the ansible playbook to login properly
+    env:
+      GITHUB_USER: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+      - name: Install Ansible
+        run: |
+          pipx install ansible
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+          ln -sf ~/.local/pipx/venvs/ansible/bin/ansible-galaxy ~/.local/bin/ansible-galaxy
+          ln -sf ~/.local/pipx/venvs/ansible/bin/ansible-playbook ~/.local/bin/ansible-playbook
+      - name: Install collections
+        run: |
+          ansible-galaxy collection install -r deploy/requirements.yml
+      - name: Set target IP
+        id: set_ip
+        run: |
+          if [ "${{ github.event.inputs.environment }}" = "devnet" ]; then
+            echo "SERVER_IP=100.96.253.40" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.environment }}" = "testnet" ]; then
+            echo "SERVER_IP=100.107.248.71" >> $GITHUB_ENV
+          fi
+      - name: Run Ansible playbook
+        run: |
+          cd deploy
+          ansible-playbook bots.yml --limit ${{ env.SERVER_IP }} -e '{"dango_networks":["${{ github.event.inputs.environment }}"]}' -e faucet_version=${{ github.event.inputs.faucet_version }}

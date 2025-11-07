@@ -1,0 +1,30 @@
+[package]
+authors.workspace    = true
+description          = "ZKsync consensus executor component"
+edition.workspace    = true
+homepage.workspace   = true
+keywords.workspace   = true
+license.workspace    = true
+name                 = "zksync_consensus_executor"
+repository.workspace = true
+version.workspace    = true
+
+[dependencies]
+zksync_concurrency.workspace       = true
+zksync_consensus_bft.workspace     = true
+zksync_consensus_network.workspace = true
+zksync_consensus_roles.workspace   = true
+zksync_consensus_engine.workspace = true
+zksync_protobuf.workspace          = true
+
+anyhow.workspace      = true
+rand.workspace        = true
+semver.workspace      = true
+tracing.workspace     = true
+
+[dev-dependencies]
+test-casing.workspace = true
+tokio.workspace       = true
+
+[lints]
+workspace = true

@@ -1,0 +1,9 @@
+CODEOWNERS @brunoffranca
+
+/node/actors/bft/ @brunoffranca
+/node/actors/network/ @pompon0
+
+/node/libs/concurrency/ @pompon0
+/node/libs/crypto/ @brunoffranca
+/node/libs/protobuf/ @pompon0
+/node/libs/protobuf_build/ @pompon0

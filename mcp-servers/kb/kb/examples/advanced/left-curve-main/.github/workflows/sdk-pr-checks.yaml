@@ -1,0 +1,42 @@
+name: SDK Pull-Request Checks
+
+on:
+  pull_request:
+    paths:
+      - "sdk/**"
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.16.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      - name: Install SDK dependencies
+        run: pnpm i --frozen-lockfile
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Linter checks
+        run: pnpm lint:sdk
+
+      - name: Test checks
+        run: pnpm test:sdk
+
+      - name: Build checks
+        run: pnpm build:sdk
+
+      - name: Doc Build Check
+        run: pnpm doc

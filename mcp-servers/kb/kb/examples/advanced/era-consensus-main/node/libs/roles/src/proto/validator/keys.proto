@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package zksync.roles.validator;
+
+message PublicKey {
+  // TODO: The name is wrong, it should be bls12_381.
+  optional bytes bn254 = 1; // required
+}
+
+message Signature {
+  // TODO: The name is wrong, it should be bls12_381.
+  optional bytes bn254 = 1; // required
+}
+
+message AggregateSignature {
+  // TODO: The name is wrong, it should be bls12_381.
+  optional bytes bn254 = 1; // required
+}

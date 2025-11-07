@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package zksync.roles.validator;
+
+import "zksync/roles/validator/keys.proto";
+
+message Genesis {
+  reserved 1, 2, 3, 4, 9;
+  reserved "fork","validators", "validators_v1", "leader_selection", "attesters";
+
+  optional uint64 chain_id = 5; // required
+  optional uint64 fork_number = 6; // required; ForkNumber
+  optional uint64 first_block = 7; // required; BlockNumber
+  optional uint32 protocol_version = 8; // required; ProtocolVersion
+  optional ValidatorSchedule validators_schedule = 10; // optional
+}
+
+message GenesisHash {
+  optional bytes keccak256 = 1; // required
+}
+
+message ValidatorSchedule {
+  repeated ValidatorInfo validators = 1;
+  optional LeaderSelection leader_selection = 2; // required
+}
+
+message ValidatorInfo {
+  optional PublicKey key = 1; // required
+  optional uint64 weight = 2; // required
+  optional bool leader = 3; // required
+}
+
+message LeaderSelection {
+  optional uint64 frequency = 1; // required
+  optional LeaderSelectionMode mode = 2; // required
+}
+
+message LeaderSelectionMode {
+  reserved 2, 4;
+  reserved "sticky", "rota";
+
+  oneof mode {
+    RoundRobin round_robin = 1;
+    Weighted weighted = 3;
+  }
+
+  message RoundRobin{}
+  message Weighted{}
+}
+
+message PayloadHash {
+  optional bytes keccak256 = 1; // required
+}
+
+message Proposal {
+  optional uint64 number = 1; // required; BlockNumber
+  optional bytes payload = 2; // required
+}

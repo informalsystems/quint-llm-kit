@@ -1,6 +1,6 @@
 # Quint Examples
 
-This directory contains 75 Quint example specifications organized by category.
+This directory contains Quint example specifications organized by category.
 
 ## Categories
 
@@ -16,13 +16,8 @@ This directory contains 75 Quint example specifications organized by category.
 - **puzzles** (2 examples) - Logic puzzles
 - **cosmwasm** (1 example) - CosmWasm smart contracts
 - **verification** (1 example) - Verification examples
+- **advanced**
 
-## Statistics
-
-- Total examples: 75
-- Total modules: 137
-- Examples with tests: 35
-- Indexed keywords: 745
 
 ## Index
 

@@ -1,0 +1,151 @@
+- name: Change password for the Ansible‐connected user
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    password: "{{ ansible_user_password | password_hash('sha512') }}"
+    update_password: always
+  when: ansible_user_password != ''
+
+- name: Install locales package
+  apt:
+    name: locales
+    state: present
+    update_cache: yes
+
+- name: Set default system locale
+  lineinfile:
+    path: /etc/locale.gen
+    regexp: 'en_US.UTF-8 UTF-8'
+    line: 'en_US.UTF-8 UTF-8'
+
+- name: Generate en_US.UTF-8 locale
+  command: locale-gen en_US.UTF-8
+
+- name: Set default system locale
+  lineinfile:
+    path: /etc/default/locale
+    regexp: '^LANG='
+    line: 'LANG=en_US.UTF-8'
+    create: yes
+
+- name: Reconfigure locales
+  command: dpkg-reconfigure --frontend=noninteractive locales
+
+- name: Write /etc/hostname
+  become: yes
+  ansible.builtin.copy:
+    dest: /etc/hostname
+    content: "{{ hostname }}\n"
+    mode: "0644"
+
+- name: Apply hostname immediately (no D-Bus)
+  become: yes
+  ansible.builtin.command: hostname -F /etc/hostname
+  changed_when: false
+
+- name: Update /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ hostname }}"
+
+- name: Install base packages
+  apt:
+    name:
+      - rsyslog
+      - ufw
+      - curl
+      - git
+      - ca-certificates
+      - fail2ban
+      - tmux
+      - mosh
+      - sudo
+      - gnupg
+      - apt-transport-https
+      - vim
+      - btop
+      - htop
+      - jq
+    state: present
+    update_cache: yes
+
+- name: Refresh network facts
+  setup:
+    gather_subset:
+      - network
+- ufw: state=reset
+  tags: setup
+- ufw: default=allow direction=outgoing
+  tags: setup
+- ufw: default=deny direction=incoming
+  tags: setup
+- name: Allow SSH on non-tailscale
+  ufw:
+    rule: allow
+    direction: in
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - ssh
+    # mosh
+    - '60000:61000'
+- name: Allow any port on tailscale0
+  ufw:
+    rule: allow
+    direction: in
+    interface: tailscale0
+- ufw:
+    rule: allow
+    direction: in
+    port: "{{ item }}"
+    proto: udp
+  # Tailscale
+  with_items: ['41641']
+- ufw: logging=low
+  tags: setup
+- ufw: state=enabled
+  tags: setup
+
+- copy:
+    src: "jail.local"
+    dest: /etc/fail2ban/
+    mode: '0644'
+
+- name: Restart fail2ban
+  service:
+    name: fail2ban
+    state: restarted
+
+- file:
+    state: absent
+    path: /etc/motd
+
+- copy:
+    src: "{{ item }}"
+    dest: /etc/update-motd.d/
+    mode: '0755'
+  with_items:
+    - 10-banner
+    - 20-sysinfo
+
+- name: Raise kernel fd ceilings
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    sysctl_set: yes
+    reload: yes
+  loop:
+    # File descriptor limits
+    - { name: "fs.nr_open",                value: "1048576" }
+    - { name: "fs.file-max",               value: "1048576" }
+
+    # Connection backlog tuning
+    - { name: "net.core.somaxconn",        value: "65535" }
+    - { name: "net.core.netdev_max_backlog", value: "16384" }
+    - { name: "net.ipv4.tcp_max_syn_backlog", value: "65535" }
+
+    # UDP buffer sizes for cloudflared
+    - { name: "net.core.rmem_max",         value: "7500000" }
+    - { name: "net.core.wmem_max",         value: "7500000" }
+
