@@ -242,6 +242,53 @@ When you begin work, you will:
    ## Part 2: [next listener/handler from main_listener]
    ...
 
+   ---
+
+   ## Part 3: MBT Validation for `runBasicTest` (Spec test lines X-Y)
+
+   **Type**: Model-Based Testing validation
+   **Dependencies**: Parts 1, 2 must be complete
+   **Quint Test**: `runBasicTest` from target spec (lines X-Y)
+   **Validates**: Transitions from Parts 1-2 match spec behavior
+
+   **Note**: This MBT part is inserted IMMEDIATELY after Parts 1-2 because `runBasicTest` only exercises those transitions. Additional transitions are implemented AFTER validation passes.
+
+   ### Task 3.1: Setup MBT test crate (if first MBT part only)
+   - [ ] Invoke `/quint-connect` slash command
+   - [ ] Provide inputs:
+     - Spec path: [target spec path]
+     - Crate name: {project}-mbt
+     - Crate location: tests/mbt
+     - First test: runBasicTest
+   - [ ] Review generated MBT structure
+   - [ ] Verify process type mappings
+   - **Commit**: `test(mbt): add MBT test infrastructure`
+   - **Compiles**: Yes | **Tests Pass**: No (expected - handlers not implemented)
+
+   ---
+
+   ### Task 3.2: Implement MBT handlers for Parts 1-2
+   - [ ] Add transitions from Parts 1-2 to `Label` enum in `transition.rs`
+   - [ ] Add action mappings in `nondet_picks` match statement
+   - [ ] Add transitions to `switch!` macro in `driver.rs` (maintain main_listener order)
+   - [ ] Implement handler methods with event assertions:
+     - Assert ALL events from spec (messages sent, state changes, timers updated)
+     - Use spec line references in comments
+     - Example: `assert!(emitted.contains(&msg), "spec line 142: must broadcast proposal")`
+   - [ ] Run: `QUINT_VERBOSE=1 cargo test --package {mbt_crate} runBasicTest -- --nocapture`
+   - [ ] Debug with QUINT_SEED if test fails
+   - [ ] Fix implementation (not MBT test) if divergence found
+   - [ ] Fix warnings: `cargo check --package {mbt_crate} --all-targets`
+   - [ ] Format: `cargo fmt --package {mbt_crate}`
+   - **Spec Mapping**: Validates Parts 1-2 against spec test
+   - **Commit**: `test(mbt): validate transitions for runBasicTest`
+   - **Compiles**: Yes | **MBT Tests Pass**: Yes
+
+   ---
+
+   ## Part 4: [next listener/handler from main_listener]
+   ...
+
    ## Progress Tracking
 
    **Part 1**: 0/X tasks complete
@@ -252,7 +299,8 @@ When you begin work, you will:
    ## Notes
 
    - Parts follow the EXACT order from `main_listener` in target spec
-   - Each part is independent and implements one transition
+   - Each implementation part is independent and implements one transition
+   - MBT validation parts are inserted IMMEDIATELY after their dependent parts
    - Tasks may break existing tests - this is expected
    - Data structures added only when needed by specific part
    ```
@@ -279,6 +327,16 @@ When you begin work, you will:
      * Testable: Each listener/handler is independently testable
      * Traceable: Direct 1:1 mapping between spec entries and task parts
      * Incremental: Build up the system transition-by-transition
+   - **Insert MBT validation parts IMMEDIATELY after dependencies**:
+     * Analyze target spec to identify all Quint test functions (usually prefixed with `run`)
+     * For each Quint test, determine which transitions it exercises
+     * **CRITICAL**: Insert the MBT validation part IMMEDIATELY after the last transition it depends on
+     * Example: If `runBasicTest` exercises transitions from Parts 1-2, then Part 3 MUST be "MBT Validation for runBasicTest", NOT Part 4
+     * **DO NOT** implement additional transitions before validating - validation gates are IMMEDIATE
+     * First MBT part includes Task N.1 (setup MBT crate) and Task N.2 (implement handlers)
+     * Subsequent MBT parts only include Task N.2 (implement new handlers)
+     * **Rationale**: Immediate validation prevents implementing additional transitions on top of potentially incorrect behavior
+     * MBT tests serve as quality gates ensuring spec compliance before proceeding
 
 8. **Migration Philosophy - Direct Implementation**:
    - **No backward compatibility**: You are changing the codebase to match the new spec, not maintaining parallel implementations
@@ -289,9 +347,19 @@ When you begin work, you will:
    - Each commit should move the codebase closer to the target spec, even if it temporarily breaks some functionality
 
 9. **Task Organization Principles**:
-   - Each Part corresponds to ONE entry from `main_listener`
+   - **Two types of Parts**:
+     * Implementation Parts: Each corresponds to ONE entry from `main_listener`
+     * MBT Validation Parts: Validate multiple transitions against a Quint test
    - Each task within a Part is one atomic commit
    - Task numbering: Part N, Task N.M (e.g., Part 1 has Tasks 1.1, 1.2, 1.3)
+   - **Implementation Part structure**:
+     * Task N.1: Implement listener
+     * Task N.2: Implement handler
+     * Task N.3: Add data structures (if needed)
+   - **MBT Validation Part structure**:
+     * Task N.1: Setup MBT crate (only for first MBT part)
+     * Task N.2: Implement MBT handlers for multiple transitions
+   - **MBT Parts are quality gates**: They must be inserted IMMEDIATELY after their dependencies, not delayed
    - **Every task must reference protocol description guidance** when applicable
    - Parts are implemented in order, but tasks within a Part can sometimes be reordered if dependencies require it
    - Tasks may not compile initially if they depend on types not yet added - mark as "Compiles: After Task N.M"
@@ -299,6 +367,8 @@ When you begin work, you will:
    - Include specific file paths, line numbers, function names, and spec line references
    - Note dependencies between tasks/parts clearly
    - Keep commits small and focused on implementing one piece of the spec
+   - **MBT validation tasks ensure spec compliance** - failures indicate implementation errors, not test errors
+   - **DO NOT proceed past an MBT part** until all its tests pass - this prevents building on incorrect foundations
 
 ### Phase 2: Incremental Implementation
 
@@ -316,6 +386,8 @@ For each transition, you will:
 3. **Create Validation Points**: For each transition implementation:
    - Write unit tests that verify the transition behaves as specified
    - Create integration tests that check the transition in context
+   - **MBT validation will be performed in dedicated MBT Parts** (inserted IMMEDIATELY after implementing all transitions required for a Quint test)
+   - MBT validation serves as a quality gate - no further implementation proceeds until tests pass
    - Identify manual testing steps if automated testing is insufficient
    - Verify that invariants hold before and after the transition
    - Test edge cases and boundary conditions mentioned in the spec
