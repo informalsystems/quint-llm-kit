@@ -1,0 +1,26 @@
+[package]
+authors = ["Murad Karammaev <muradkarammaev@gmail.com>"]
+description = "Contract module which mints and burns tokens"
+edition = "2021"
+name = "drop-token"
+version = "1.0.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+backtraces = ["cosmwasm-std/backtraces"]
+library = []
+
+[dependencies]
+cosmwasm-std = { workspace = true }
+drop-staking-base = { workspace = true }
+drop-helpers = { workspace = true }
+cosmwasm-schema = { workspace = true }
+cw2 = { workspace = true }
+cw-utils = { workspace = true }
+neutron-sdk = { workspace = true }
+thiserror = { workspace = true }
+cw-ownable = { workspace = true }
+cosmos-sdk-proto = { workspace = true }
+semver = { workspace = true }

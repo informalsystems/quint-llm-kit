@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { PATHS } from '../config/paths.js';
 
 interface ExampleRecord {
   filename: string;
@@ -38,7 +39,7 @@ interface ExampleInfoResponse {
 const exampleCache: Map<string, ExampleRecord> = new Map();
 let examplesLoaded = false;
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const DATA_DIR = PATHS.data;
 
 function normalizeKey(value: string): string {
   return value.replace(/\\/g, '/').replace(/^\.\//, '').trim().toLowerCase();

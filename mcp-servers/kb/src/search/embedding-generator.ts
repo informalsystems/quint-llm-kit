@@ -1,6 +1,5 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { pipeline, env } from '@xenova/transformers';
+import { PATHS } from '../config/paths.js';
 
 const DEFAULT_MODEL_ID = 'Xenova/all-MiniLM-L6-v2';
 const DEFAULT_BATCH_SIZE = 16;
@@ -12,9 +11,7 @@ type FeatureExtractionPipeline = Awaited<ReturnType<typeof pipeline>>;
 let embeddingPipelinePromise: Promise<FeatureExtractionPipeline> | null = null;
 
 env.allowLocalModels = true;
-
-const projectRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-env.localModelPath = path.join(projectRoot, '..', 'data', 'models');
+env.localModelPath = PATHS.models;
 
 async function getEmbeddingPipeline(modelId: string): Promise<FeatureExtractionPipeline> {
   if (!embeddingPipelinePromise) {

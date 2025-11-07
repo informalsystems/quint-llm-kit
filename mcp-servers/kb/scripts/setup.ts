@@ -2,10 +2,10 @@
 
 import fs from 'fs';
 import path from 'path';
+import { execSync } from 'child_process';
 import { buildBuiltinIndex } from '../src/indexers/builtin-indexer.js';
 import { buildDocIndexFile } from '../src/indexers/doc-indexer.js';
 import { buildExtraDocsIndex } from '../src/indexers/doc-extra-indexer.js';
-import { buildGuidelinesIndex } from '../src/indexers/guidelines-indexer.js';
 import { buildExamplesIndex } from '../src/indexers/examples-indexer.js';
 import { buildVectorIndices } from '../src/indexers/vector-indexer.js';
 import { buildLexicalIndices } from '../src/indexers/lexical-indexer.js';
@@ -22,7 +22,7 @@ async function main() {
     process.exit(1);
   }
 
-  const requiredDirs = ['docs', 'choreo', 'posts', 'guidelines', 'examples'];
+  const requiredDirs = ['docs', 'choreo', 'posts', 'patterns', 'guidelines', 'examples'];
   for (const dir of requiredDirs) {
     const dirPath = path.join(kbDir, dir);
     if (!fs.existsSync(dirPath)) {
@@ -75,22 +75,36 @@ async function main() {
   }
 
   try {
-    console.log('   Indexing guidelines and patterns...');
-    const guidelinesDir = path.join(kbDir, 'guidelines');
-    const guidelinesOutput = path.join(dataDir, 'guidelines-index.json');
-    buildGuidelinesIndex(guidelinesDir, guidelinesOutput);
-  } catch (error: any) {
-    console.error('   ✗ Failed to index guidelines:', error.message);
-    process.exit(1);
-  }
-
-  try {
     console.log('   Indexing Quint examples...');
     const examplesDir = path.join(kbDir, 'examples');
     const examplesOutput = path.join(dataDir, 'examples-index.json');
     buildExamplesIndex(examplesDir, examplesOutput);
   } catch (error: any) {
     console.error('   ✗ Failed to index examples:', error.message);
+    process.exit(1);
+  }
+
+  try {
+    console.log('   Building patterns index from markdown...');
+    execSync('node scripts/build-pattern-index.js', {
+      cwd: process.cwd(),
+      stdio: 'pipe'
+    });
+    console.log('   ✓ Patterns index built successfully');
+  } catch (error: any) {
+    console.error('   ✗ Failed to build patterns index:', error.message);
+    process.exit(1);
+  }
+
+  try {
+    console.log('   Building templates index from markdown...');
+    execSync('node scripts/build-templates-index.js', {
+      cwd: process.cwd(),
+      stdio: 'pipe'
+    });
+    console.log('   ✓ Templates index built successfully');
+  } catch (error: any) {
+    console.error('   ✗ Failed to build templates index:', error.message);
     process.exit(1);
   }
 
@@ -125,7 +139,7 @@ async function main() {
     { name: 'Builtins index', path: path.join(dataDir, 'builtins.json') },
     { name: 'Documentation index', path: path.join(dataDir, 'docs-index.json') },
     { name: 'Extra docs index', path: path.join(dataDir, 'docs-extra-index.json') },
-    { name: 'Guidelines index', path: path.join(dataDir, 'guidelines-index.json') },
+    { name: 'Patterns index', path: path.join(dataDir, 'patterns-index.json') },
     { name: 'Examples index', path: path.join(dataDir, 'examples-index.json') },
     { name: 'Vector indices', path: vectorIndexDir },
     { name: 'Embeddings', path: embeddingsDir },

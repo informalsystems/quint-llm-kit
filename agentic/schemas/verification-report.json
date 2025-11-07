@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Verification Light Report",
+  "description": "Lightweight verification results for Quint specifications focusing on configuration, witnesses, and invariants",
+  "type": "object",
+  "required": ["configuration", "witnesses", "invariants"],
+  "properties": {
+    "configuration": {
+      "type": "object",
+      "description": "Module configuration used for verification",
+      "required": ["module"],
+      "properties": {
+        "module": {
+          "type": "string",
+          "description": "Name of the module being verified"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Parameter values if module is parameterized",
+          "additionalProperties": true
+        }
+      }
+    },
+    "witnesses": {
+      "type": "object",
+      "description": "Witness verification results (reachability checks)",
+      "required": ["total", "violated", "satisfied"],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "Total number of witnesses checked"
+        },
+        "violated": {
+          "type": "integer",
+          "description": "Number of witnesses violated (scenarios reached - good)"
+        },
+        "satisfied": {
+          "type": "integer",
+          "description": "Number of witnesses satisfied (scenarios NOT reached - potential concern)"
+        },
+        "details": {
+          "type": "array",
+          "description": "Detailed results for each witness",
+          "items": {
+            "type": "object",
+            "required": ["name", "result"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the witness"
+              },
+              "category": {
+                "type": "string",
+                "description": "Category of witness (e.g., liveness, reachability)"
+              },
+              "result": {
+                "type": "string",
+                "enum": ["violated", "satisfied"],
+                "description": "Witness result: violated means scenario reached, satisfied means not reached"
+              },
+              "steps_to_violation": {
+                "type": "integer",
+                "description": "Number of steps to reach violation (only if violated)"
+              },
+              "warning": {
+                "type": "string",
+                "description": "Warning message if witness was not violated"
+              }
+            }
+          }
+        }
+      }
+    },
+    "invariants": {
+      "type": "object",
+      "description": "Invariant verification results (safety checks)",
+      "required": ["total", "satisfied", "violated"],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "Total number of invariants checked"
+        },
+        "satisfied": {
+          "type": "integer",
+          "description": "Number of invariants satisfied (safety holds - good)"
+        },
+        "violated": {
+          "type": "integer",
+          "description": "Number of invariants violated (bugs found - bad)"
+        },
+        "details": {
+          "type": "array",
+          "description": "Detailed results for each invariant",
+          "items": {
+            "type": "object",
+            "required": ["name", "result"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the invariant"
+              },
+              "result": {
+                "type": "string",
+                "enum": ["satisfied", "violated"],
+                "description": "Invariant result: satisfied means safety holds, violated means bug found"
+              },
+              "seed": {
+                "type": "string",
+                "description": "Violation seed for reproduction (only if violated)"
+              },
+              "steps": {
+                "type": "integer",
+                "description": "Number of steps to violation (only if violated)"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

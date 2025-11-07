@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import hnswlib from 'hnswlib-node';
+import { PATHS } from '../config/paths.js';
 import type { EmbeddingFile, SearchResult, SearchScope } from './types.js';
 
 interface LoadedVectorIndex {
@@ -17,7 +18,7 @@ export class VectorStore {
   private cache = new Map<SearchScope, LoadedVectorIndex>();
 
   constructor(
-    private readonly dataDir: string = path.join(process.cwd(), 'data'),
+    private readonly dataDir: string = PATHS.data,
     private readonly embeddingsDirName: string = 'embeddings',
     private readonly vectorDirName: string = 'vector-indices'
   ) {}

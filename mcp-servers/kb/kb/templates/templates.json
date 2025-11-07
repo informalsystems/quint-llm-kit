@@ -56,42 +56,87 @@
     ],
     "workflow": "Only create test file after reviewing and finalizing the main specification"
   },
-  "choreo-testing-workflow": {
-    "name": "Choreo Testing Workflow Tutorial",
-    "description": "Complete workflow for testing Choreo listener reachability using witness-based counterexample generation and conversion to test runs",
-    "filename": "choreo-testing-workflow.md",
+  "choreo-template": {
+    "name": "Choreo Spec Template",
+    "description": "Complete boilerplate for a Choreo-based distributed protocol specification with listeners, messages, and state transitions",
+    "filename": "choreo-template.qnt",
     "framework": "choreo",
     "use_for": [
-      "Testing Choreo listener actions",
-      "Finding reachable actions in Choreo specs",
-      "Converting counterexamples to test runs",
-      "Testing complex preconditions in consensus protocols"
+      "Consensus algorithms (PBFT, Tendermint, HotStuff, Raft)",
+      "Byzantine fault tolerant protocols",
+      "Multi-phase commit protocols",
+      "Distributed coordination protocols",
+      "Message-passing systems"
     ],
     "includes": [
-      "Step 1: Adding custom effects/extensions for logging",
-      "Step 2: Writing witnesses to find counterexamples",
-      "Step 3: Converting counterexamples to test runs",
-      "Step 3.1: Handling complex counterexamples",
-      "Step 4: Removing instrumentation",
-      "Additional learnings and best practices"
+      "Choreo import and setup",
+      "Mandatory Choreo types (Node, Message, StateFields, etc.)",
+      "Boilerplate type definitions",
+      "Helper functions for message filtering",
+      "Listener functions returning Set[Transition]",
+      "Main listener combining all sub-listeners",
+      "Initialization with choreo::init",
+      "Step action with choreo::step",
+      "Invariants and witnesses",
+      "Testing helper step_with"
     ],
     "instructions": [
-      "Step 1: Instrument your spec with custom Log effects in each action",
-      "Step 1b: Add displayer function and init_displayer/step actions",
-      "Step 2: Write witness invariant (should be violated)",
-      "Step 2b: Run with 'quint run' to get counterexample",
-      "Step 2c: Minimize counterexample by decreasing --max-steps",
-      "Step 3: Convert each log entry to .then(process.with_cue(listener, params).perform(action))",
-      "Step 3b: Test converted run with 'quint test'",
-      "Step 4: Remove all logging instrumentation, keep only tests"
+      "Replace 'ProtocolName' with your protocol name",
+      "Define protocol roles in the Role type (section 1)",
+      "Define protocol stages in the Stage type (section 1)",
+      "Define all message types in the Message type (section 2)",
+      "Add protocol-specific fields to StateFields (section 2)",
+      "Create helper functions to filter/extract messages (section 4)",
+      "Write one listener function per protocol transition (section 5)",
+      "Combine all listeners in main_listener (section 6)",
+      "Define your nodes and assign roles (section 7)",
+      "Initialize each node's state in initialize() (section 8)",
+      "Add invariants for safety properties (section 10)",
+      "Add witnesses to test listener reachability (section 11)"
     ],
-    "workflow": "Use this workflow when you need to test that specific Choreo listener actions are reachable, especially for actions with complex preconditions",
+    "workflow": "Use this template when building distributed protocols that require message passing, Byzantine fault tolerance, or consensus mechanisms"
+  },
+  "choreo-test-template": {
+    "name": "Choreo Test File Template",
+    "description": "Complete test file boilerplate for Choreo protocol specifications with multiple test scenarios: happy-path, timeouts, message injection, and complex workflows",
+    "filename": "choreo-test-template.qnt",
+    "framework": "choreo",
+    "use_for": [
+      "Testing Choreo consensus protocols",
+      "Testing Byzantine fault tolerant systems",
+      "Testing multi-phase commit protocols",
+      "Verifying distributed protocol behavior",
+      "Testing timeout and recovery scenarios"
+    ],
+    "includes": [
+      "Import with protocol parameters",
+      "Test 1: Basic happy-path execution",
+      "Test 2: Timeout handling and recovery",
+      "Test 3: Message injection with .step_with_messages()",
+      "Test 4: Multi-stage workflow with message extraction",
+      "Test 5: Complex scenario with justification sets",
+      "Helper patterns for common test operations"
+    ],
+    "instructions": [
+      "Replace 'protocol' and 'protocolTest' with your module names",
+      "Update import parameters (section 1) to match your protocol",
+      "Replace 'listener_name', 'action_name' with your actual listener/action names",
+      "Replace 'MessageType' with your actual message variant constructors",
+      "Update 'ExpectedStage', 'FinalStage' with your protocol stages",
+      "Replace 's.system.get(node).field' with your actual state fields",
+      "Update 'get_message_type()' with your message extraction helper",
+      "Modify test scenarios to match your protocol's behavior",
+      "Add/remove tests as needed for your specific protocol",
+      "Use helper patterns (section 7) for common operations"
+    ],
+    "workflow": "Create this test file AFTER your Choreo protocol spec is complete. Use it to test happy paths, timeouts, message injection, and complex multi-stage workflows.",
     "key_patterns": [
-      "choreo::CustomEffect(Log(...))",
-      "init_with_displayer",
-      "step_with_displayer",
-      "with_cue(listener, params).perform(action)",
-      "match s.extensions.log { | MyAction(_) => false | _ => true }"
+      ".with_cue(listener, params).perform(action) - Execute specific listener with parameters",
+      ".step_with(listener) - Execute listener without parameters (timeouts)",
+      ".step_with_messages(listener_fn, msg_fn) - Inject messages and filter listeners",
+      ".find(predicate).unwrap() - Extract specific messages from message sets",
+      ".expect(predicate) - Verify state after each step",
+      "NODES.forall(n => condition) - Verify all nodes satisfy condition"
     ]
   }
 }

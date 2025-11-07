@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { PATHS, safePath, toRelativePath } from '../config/paths.js';
 
-const EXAMPLES_ROOT = path.join(process.cwd(), 'content', 'quint', 'examples');
+const EXAMPLES_ROOT = PATHS.kbExamples;
 
 export function getExample(examplePath: string): any {
   const fullPath = path.join(EXAMPLES_ROOT, examplePath);
