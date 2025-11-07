@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { PATHS } from '../config/paths.js';
 
-const TEMPLATES_DIR = path.join(process.cwd(), 'templates');
+const TEMPLATES_DIR = PATHS.kbTemplates;
 const TEMPLATES_META = path.join(TEMPLATES_DIR, 'templates.json');
 
 interface TemplateMetadata {

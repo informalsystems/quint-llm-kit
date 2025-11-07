@@ -7,7 +7,7 @@ interface SearchDocumentCollections {
   builtins: SearchDocument[];
   docs: SearchDocument[];
   examples: SearchDocument[];
-  guidelines: SearchDocument[];
+  patterns: SearchDocument[];
   extra: SearchDocument[];
 }
 
@@ -196,99 +196,44 @@ function buildExampleDocuments(dataDir: string): SearchDocument[] {
   });
 }
 
-function buildGuidelineDocuments(dataDir: string): SearchDocument[] {
-  const guidelinesPath = path.join(dataDir, 'guidelines-index.json');
-  const data = loadJson<{
-    patterns: Array<{
-      id: string;
-      name: string;
-      category: string;
-      description: string;
-      code?: string;
-      applicability?: string;
-      related?: string[];
+function buildPatternDocuments(dataDir: string): SearchDocument[] {
+  const patternsPath = path.join(dataDir, 'patterns-index.json');
+  const patterns = loadJson<Record<string, {
+    name: string;
+    category: string;
+    description: string;
+    template?: string;
+    key_principles?: string[];
+    when_to_use?: string[];
+    related_patterns?: string[];
+    anti_patterns?: Array<{
+      dont: string;
+      reason: string;
+      do: string;
     }>;
-    guidelines: Array<{
-      id: string;
-      type: string;
-      rule: string;
-      rationale?: string;
-      examples?: string[];
-      category: string;
-    }>;
-    workflows: Array<{
-      id: string;
-      name: string;
-      purpose: string;
-      steps: string[];
-      tips?: string[];
-      applicability?: string;
-    }>;
-  }>(guidelinesPath);
+  }>>(patternsPath);
 
   const documents: SearchDocument[] = [];
 
-  for (const pattern of data.patterns) {
-    const parts = [
+  for (const [id, pattern] of Object.entries(patterns)) {
+    const contentParts = [
       pattern.description,
-      pattern.code ? `Code:\n${pattern.code}` : '',
-      pattern.related?.length ? `Related: ${pattern.related.join(', ')}` : ''
+      pattern.template ? `Template:\n${pattern.template}` : '',
+      pattern.key_principles?.length ? `Key Principles:\n- ${pattern.key_principles.join('\n- ')}` : '',
+      pattern.when_to_use?.length ? `When to use:\n- ${pattern.when_to_use.join('\n- ')}` : ''
     ].filter(Boolean);
 
     documents.push({
-      id: `guideline:pattern:${pattern.id}`,
-      scope: 'guidelines',
+      id: `pattern:${id}`,
+      scope: 'patterns',
       title: pattern.name,
-      content: parts.join('\n\n'),
+      content: contentParts.join('\n\n'),
       snippet: summarize(pattern.description),
-      source: `patterns#${pattern.id}`,
-      tags: [pattern.category, ...(pattern.related ?? [])],
+      source: `patterns/${id}.md`,
+      tags: [pattern.category, ...(pattern.related_patterns ?? [])],
       metadata: {
         category: pattern.category,
-        applicability: pattern.applicability
-      }
-    });
-  }
-
-  for (const guideline of data.guidelines) {
-    const parts = [
-      guideline.rule,
-      guideline.rationale ? `Rationale: ${guideline.rationale}` : '',
-      guideline.examples?.length ? `Examples:\n${guideline.examples.join('\n')}` : ''
-    ].filter(Boolean);
-
-    documents.push({
-      id: `guideline:rule:${guideline.id}`,
-      scope: 'guidelines',
-      title: guideline.rule,
-      content: parts.join('\n\n'),
-      snippet: summarize(guideline.rule),
-      source: `guidelines#${guideline.id}`,
-      tags: [guideline.category, guideline.type],
-      metadata: {
-        category: guideline.category,
-        type: guideline.type
-      }
-    });
-  }
-
-  for (const workflow of data.workflows) {
-    const parts = [
-      workflow.purpose,
-      workflow.steps.length ? `Steps:\n- ${workflow.steps.join('\n- ')}` : '',
-      workflow.tips?.length ? `Tips:\n- ${workflow.tips.join('\n- ')}` : ''
-    ].filter(Boolean);
-
-    documents.push({
-      id: `guideline:workflow:${workflow.id}`,
-      scope: 'guidelines',
-      title: workflow.name,
-      content: parts.join('\n\n'),
-      snippet: summarize(workflow.purpose),
-      source: `workflows#${workflow.id}`,
-      tags: [workflow.applicability ?? 'general'],
-      metadata: {
-        applicability: workflow.applicability
+        when_to_use: pattern.when_to_use
       }
     });
   }
@@ -376,7 +321,7 @@ export function buildSearchDocumentCollections(
     builtins: buildBuiltinDocuments(dataDir),
     docs: buildDocDocuments(dataDir),
     examples: buildExampleDocuments(dataDir),
-    guidelines: buildGuidelineDocuments(dataDir),
+    patterns: buildPatternDocuments(dataDir),
     extra: buildExtraDocuments(dataDir, kbDir)
   };
 }

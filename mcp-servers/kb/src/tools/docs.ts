@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { PATHS } from '../config/paths.js';
 
-const CONTENT_ROOT = path.join(process.cwd(), 'content', 'quint');
+const CONTENT_ROOT = PATHS.kb;
 
 // Cache for frequently accessed docs
 const docCache: Map<string, { content: string; timestamp: number }> = new Map();
@@ -43,9 +44,10 @@ export function getDoc(filename: string): any {
 
   // Support multiple doc locations
   const possiblePaths = [
-    path.join(CONTENT_ROOT, 'docs', 'content', filename),
-    path.join(CONTENT_ROOT, 'docs', 'content', 'docs', filename),
-    path.join(CONTENT_ROOT, 'docs', 'content', 'choreo', filename)
+    path.join(CONTENT_ROOT, 'docs', filename),
+    path.join(CONTENT_ROOT, 'choreo', filename),
+    path.join(CONTENT_ROOT, 'posts', filename),
+    path.join(CONTENT_ROOT, 'guidelines', filename)
   ];
 
   for (const docPath of possiblePaths) {
@@ -78,8 +80,8 @@ export function getDoc(filename: string): any {
   }
 
   // File not found - suggest similar files
-  const docsDir = path.join(CONTENT_ROOT, 'docs', 'content', 'docs');
-  const choreoDir = path.join(CONTENT_ROOT, 'docs', 'content', 'choreo');
+  const docsDir = path.join(CONTENT_ROOT, 'docs');
+  const choreoDir = path.join(CONTENT_ROOT, 'choreo');
 
   const availableDocs: string[] = [];
 
@@ -103,13 +105,15 @@ export function getDoc(filename: string): any {
 }
 
 export function listDocs(): any {
-  const docsDir = path.join(CONTENT_ROOT, 'docs', 'content', 'docs');
-  const choreoDir = path.join(CONTENT_ROOT, 'docs', 'content', 'choreo');
+  const docsDir = path.join(CONTENT_ROOT, 'docs');
+  const choreoDir = path.join(CONTENT_ROOT, 'choreo');
+  const guidelinesDir = path.join(CONTENT_ROOT, 'guidelines');
 
   const result: any = {
     core: [],
     choreo: [],
-    lessons: []
+    lessons: [],
+    guidelines: []
   };
 
   // Core docs
@@ -164,8 +168,25 @@ export function listDocs(): any {
     }
   }
 
+  // Guidelines (tutorials)
+  if (fs.existsSync(guidelinesDir)) {
+    const files = fs.readdirSync(guidelinesDir);
+    for (const file of files) {
+      const filePath = path.join(guidelinesDir, file);
+      const stats = fs.statSync(filePath);
+
+      if (stats.isFile() && (file.endsWith('.md') || file.endsWith('.mdx'))) {
+        result.guidelines.push({
+          filename: file,
+          path: `guidelines/${file}`,
+          size: stats.size
+        });
+      }
+    }
+  }
+
   return {
-    total: result.core.length + result.choreo.length + result.lessons.length,
+    total: result.core.length + result.choreo.length + result.lessons.length + result.guidelines.length,
     ...result
   };
 }

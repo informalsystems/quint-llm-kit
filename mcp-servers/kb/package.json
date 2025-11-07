@@ -9,6 +9,9 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "tsx src/server.ts",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "test:search": "node tests/test-search.js",
     "test:server": "node tests/test-server.js",
     "test:tool": "node tests/test-specific-tool.js"
@@ -23,7 +26,11 @@
     "minisearch": "^7.0.0"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
     "tsx": "^4.7.0",
     "typescript": "^5.3.0"
   }

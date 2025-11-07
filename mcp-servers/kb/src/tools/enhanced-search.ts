@@ -1,5 +1,5 @@
 import fs from 'fs';
-import path from 'path';
+import { PATHS } from '../config/paths.js';
 import { DocMetadata, InvertedIndex } from '../indexers/doc-indexer.js';
 
 interface DocIndex {
@@ -38,7 +38,7 @@ let docIndex: DocIndex | null = null;
  */
 function loadDocIndex(): DocIndex {
   if (!docIndex) {
-    const indexPath = path.join(process.cwd(), 'data', 'docs-index.json');
+    const indexPath = PATHS.docsIndex;
     if (!fs.existsSync(indexPath)) {
       throw new Error('Documentation index not found. Run npm run setup to build it.');
     }

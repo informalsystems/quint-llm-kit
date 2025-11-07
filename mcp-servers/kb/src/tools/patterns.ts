@@ -1,7 +1,7 @@
 import fs from 'fs';
-import path from 'path';
+import { PATHS } from '../config/paths.js';
 
-const PATTERNS_PATH = path.join(process.cwd(), 'data', 'patterns.json');
+const PATTERNS_PATH = PATHS.patterns;
 
 interface Pattern {
   name: string;

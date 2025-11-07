@@ -59,7 +59,7 @@ const TOOLS: Tool[] = [
         },
         scope: {
           type: 'string',
-          enum: ['all', 'builtins', 'docs', 'examples', 'guidelines', 'extra'],
+          enum: ['all', 'builtins', 'docs', 'examples', 'patterns', 'extra'],
           description: 'Optional single scope (deprecated; use scopes instead)'
         },
         scopes: {
@@ -67,7 +67,7 @@ const TOOLS: Tool[] = [
           description: 'Optional list of scopes to search. Results are grouped per scope when provided.',
           items: {
             type: 'string',
-            enum: ['all', 'builtins', 'docs', 'examples', 'guidelines', 'extra']
+            enum: ['all', 'builtins', 'docs', 'examples', 'patterns', 'extra']
           }
         },
         k: {
@@ -122,13 +122,13 @@ const TOOLS: Tool[] = [
   },
   {
     name: 'quint_get_doc',
-    description: 'Get full content of a Quint documentation file (markdown/mdx). Supports core docs, Choreo docs, and lessons.',
+    description: 'Get full content of a Quint documentation file (markdown/mdx). Supports core docs, Choreo docs, lessons, and guidelines.',
     inputSchema: {
       type: 'object',
       properties: {
         filename: {
           type: 'string',
-          description: 'Doc filename with optional path: "builtin.md", "choreo/tutorial.mdx", "docs/language-basics.mdx"'
+          description: 'Doc filename with optional path: "builtin.md", "choreo/tutorial.mdx", "docs/language-basics.mdx", "guidelines/spec-builder.md"'
         }
       },
       required: ['filename']
@@ -177,7 +177,7 @@ const TOOLS: Tool[] = [
   },
   {
     name: 'quint_list_docs',
-    description: 'List all available Quint documentation files organized by category (core docs, Choreo docs, lessons).',
+    description: 'List all available Quint documentation files organized by category (core docs, Choreo docs, lessons, guidelines).',
     inputSchema: {
       type: 'object',
       properties: {}

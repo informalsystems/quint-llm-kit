@@ -1,12 +1,13 @@
 import fs from 'fs';
 import path from 'path';
+import { PATHS } from '../config/paths.js';
 import { SearchOptions, SearchResult, SearchMatch } from '../types.js';
 
 export function searchDocs(query: string, options?: SearchOptions): SearchResult {
   const scope = options?.scope || 'all';
   const contextLines = options?.contextLines || 2;
 
-  const contentDir = path.join(process.cwd(), 'content', 'quint');
+  const contentDir = PATHS.content;
 
   // Determine search paths based on scope
   const searchPaths: string[] = [];
