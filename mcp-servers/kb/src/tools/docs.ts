@@ -35,51 +35,48 @@ function stripMDXFeatures(content: string): string {
   return cleaned;
 }
 
-export function getDoc(filename: string): any {
-  // Check cache first
-  const cached = docCache.get(filename);
+export function getDoc(filePath: string): any {
+  // Normalize the path - remove leading slash if present
+  const normalizedPath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
+
+  // Check cache first (use normalized path as key)
+  const cached = docCache.get(normalizedPath);
   if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
-    return JSON.parse(cached.content); // Return cached copy
+    return JSON.parse(cached.content);
   }
 
-  // Support multiple doc locations
-  const possiblePaths = [
-    path.join(CONTENT_ROOT, 'docs', filename),
-    path.join(CONTENT_ROOT, 'choreo', filename),
-    path.join(CONTENT_ROOT, 'posts', filename),
-    path.join(CONTENT_ROOT, 'guidelines', filename)
-  ];
+  // Construct full path from kb root
+  const fullPath = path.join(CONTENT_ROOT, normalizedPath);
 
-  for (const docPath of possiblePaths) {
-    if (fs.existsSync(docPath)) {
-      let content = fs.readFileSync(docPath, 'utf8');
-      const isMDX = filename.endsWith('.mdx');
+  // Check if file exists at the specified path
+  if (fs.existsSync(fullPath)) {
+    let content = fs.readFileSync(fullPath, 'utf8');
+    const isMDX = normalizedPath.endsWith('.mdx');
 
-      // Strip MDX features if it's an MDX file
-      if (isMDX) {
-        content = stripMDXFeatures(content);
-      }
-
-      const result = {
-        filename,
-        path: docPath.replace(CONTENT_ROOT + '/', ''),
-        content,
-        size: content.length,
-        type: isMDX ? 'mdx' : filename.endsWith('.md') ? 'markdown' : 'text',
-        processed: isMDX // Indicate if we processed/cleaned the content
-      };
-
-      // Cache the result
-      docCache.set(filename, {
-        content: JSON.stringify(result),
-        timestamp: Date.now()
-      });
-
-      return result;
+    // Strip MDX features if it's an MDX file
+    if (isMDX) {
+      content = stripMDXFeatures(content);
     }
+
+    const result = {
+      filename: path.basename(normalizedPath),
+      path: normalizedPath,
+      content,
+      size: content.length,
+      type: isMDX ? 'mdx' : normalizedPath.endsWith('.md') ? 'markdown' : 'text',
+      processed: isMDX
+    };
+
+    // Cache the result
+    docCache.set(normalizedPath, {
+      content: JSON.stringify(result),
+      timestamp: Date.now()
+    });
+
+    return result;
   }
 
-  // File not found - suggest similar files
+  // File not found - list available docs
   const docsDir = path.join(CONTENT_ROOT, 'docs');
   const choreoDir = path.join(CONTENT_ROOT, 'choreo');
 
@@ -98,7 +95,7 @@ export function getDoc(filename: string): any {
   }
 
   return {
-    error: `Document '${filename}' not found`,
+    error: `Document '${normalizedPath}' not found`,
     suggestion: `Try one of: ${availableDocs.slice(0, 10).join(', ')}`,
     availableDocs
   };

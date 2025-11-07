@@ -1,7 +1,0 @@
-- hosts: dozzle
-  become: true
-  become_user: "{{ deploy_user }}"
-  collections:
-    - community.docker
-  roles:
-    - dozzle

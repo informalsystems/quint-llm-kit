@@ -1,7 +1,0 @@
-- hosts: all
-  become: true
-  roles:
-    - role: artis3n.tailscale
-      vars:
-        # That raises issues with automatic deployment
-        # tailscale_args: "--ssh"

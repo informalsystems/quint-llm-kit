@@ -1,4 +1,0 @@
-tls:
-  certificates:
-    - certFile: /letsencrypt/live/dango.zone/fullchain.pem
-      keyFile:  /letsencrypt/live/dango.zone/privkey.pem

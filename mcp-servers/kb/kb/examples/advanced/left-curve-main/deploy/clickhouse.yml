@@ -1,8 +1,0 @@
-- hosts: clickhouse
-  become: true
-  become_user: "{{ deploy_user }}"
-  collections:
-    - community.docker
-    - community.clickhouse
-  roles:
-    - clickhouse
