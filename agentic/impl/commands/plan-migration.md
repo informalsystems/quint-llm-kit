@@ -39,7 +39,9 @@ Analyze Quint specifications and codebase to create a detailed implementation pl
 - **MBT Integration**:
   - Plan must interleave implementation and MBT validation parts.
   - MBT must be implemented as early as possible to validate correctness of the implementation.
-- **Thinking and Reasoning**: Use step-by-step reasoning for complex decisions and recommendations.
+- **Thinking and Reasoning**: Use step-by-step reasoning for complex decisions and for task breakdowns.
+- **Task specificity**: Tasks must include where in the code that change should be made.
+- **Integration Focus**: Ensure all tasks integrate into the actual codebase, not isolated dead code.
 
 ## Final CLI Output
   ╔══════════════════════════════════════════════════════╗
