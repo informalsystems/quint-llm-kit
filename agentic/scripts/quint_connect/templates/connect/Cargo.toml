@@ -1,0 +1,18 @@
+[package]
+name = "${crate_name}"
+description = "Library for model-based testing of ${spec_name}"
+publish = false
+
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+# TODO: Add crate dependencies here
+
+quint-connect = { git = "ssh://git@github.com/informalsystems/quint-private.git", branch = "erick/connect-and-observe" }
+pretty_assertions = { workspace = true }
+serde = { workspace = true }
+itf = { workspace = true }
