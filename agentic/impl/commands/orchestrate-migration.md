@@ -1,7 +1,7 @@
 ---
 command: /orchestrate-migration
 description: Orchestrate the ping-pong workflow between implementation and MBT validation agents, managing the spec migration from start to finish with approval gates
-version: 1.0.0
+version: 2.0.0
 ---
 
 # Orchestrate Specification Migration
@@ -47,25 +47,19 @@ Required files:
 
 ### Phase 2: Implementation Batch
 
-1. **Before Launching Implementation**:
-   - Use `AskUserQuestion`: "Ready to start implementation? This will implement Parts X-Y until the next MBT checkpoint."
-   - Options:
-     - "Start implementation" → Continue
-     - "Review plan first" → Stop and let user review
-     - "Stop here" → End orchestration
-
-2. **Launch @spec-implementer**:
+1. **Launch @spec-implementer**:
    - If first time: `@spec-implementer` (via Task tool)
    - If resuming: `@spec-implementer --resume {spec_implementer_agent_id}` (via Task tool with resume parameter)
+   - Agent will ask user for confirmation before starting (with detailed plan)
    - Wait for agent to complete
 
-3. **After Implementation Completes**:
+2. **After Implementation Completes**:
    - Agent returns with agent ID
    - Store/update `spec_implementer_agent_id`
    - Agent reports which parts completed (e.g., "Parts 0-1 complete")
    - Update progress tracking
 
-4. **Review Gate**:
+3. **Review Gate**:
    - Use `AskUserQuestion`: "Implementation batch complete (Parts X-Y). Review commits and code before MBT validation?"
    - Options:
      - "Looks good, proceed to MBT" → Continue to Phase 3
@@ -79,26 +73,20 @@ Required files:
    - Example: "Part 2: MBT Validation for runBasicTest"
    - Determine which implementation parts it validates
 
-2. **Before Launching MBT**:
-   - Use `AskUserQuestion`: "Ready to validate Parts X-Y with MBT Part Z?"
-   - Options:
-     - "Start validation" → Continue
-     - "Skip validation for now" → Jump to next implementation batch (not recommended)
-     - "Stop here" → End orchestration
-
-3. **Launch @mbt-validator**:
+2. **Launch @mbt-validator**:
    - If first time: `@mbt-validator` (via Task tool)
    - If resuming: `@mbt-validator --resume {mbt_validator_agent_id}` (via Task tool with resume parameter)
    - Agent auto-detects which MBT part to work on from SPEC_MIGRATION_TASKS.md
+   - Agent will ask user for confirmation before starting (with detailed plan)
    - Wait for agent to complete
 
-4. **After MBT Validation Completes**:
+3. **After MBT Validation Completes**:
    - Agent returns with agent ID
    - Store/update `mbt_validator_agent_id`
    - Agent reports validation results
    - Update progress tracking in SPEC_MIGRATION_TASKS.md
 
-5. **Validation Results Gate**:
+4. **Validation Results Gate**:
    - If validation **passed**:
      - Use `AskUserQuestion`: "MBT validation passed! Continue to next implementation batch?"
      - Options:
@@ -179,9 +167,75 @@ When orchestration is paused and restarted:
 - `Edit`: Update SPEC_MIGRATION_TASKS.md with progress
 - `AskUserQuestion`: Get approval at each gate
 
-## Output Format
+## Output Formatting Standards
 
-Throughout orchestration, display:
+**CRITICAL**: Use box-drawing characters consistently for all major sections and summaries. This provides visual clarity and professional presentation.
+
+### Standard Formats
+
+**Orchestration Start:**
+```
+╔══════════════════════════════════════════════════════╗
+║  Specification Migration Orchestration               ║
+╚══════════════════════════════════════════════════════╝
+ - Plan: SPEC_MIGRATION_TASKS.md
+ - Total Parts: [N]
+ - Starting from: Part [X]
+```
+
+**Implementation Phase:**
+```
+╔══════════════════════════════════════════════════════╗
+║  Phase 2: Implementation Batch [N]                   ║
+╚══════════════════════════════════════════════════════╝
+ - Action: Launching @spec-implementer
+ - Will implement: Parts X-Y
+ - Agent ID: [abc123 or "new"]
+```
+
+**MBT Validation Phase:**
+```
+╔══════════════════════════════════════════════════════╗
+║  Phase 3: MBT Validation                             ║
+╚══════════════════════════════════════════════════════╝
+ - Action: Launching @mbt-validator
+ - Auto-detected: Part Z (MBT Validation for [test_name])
+ - Validates: Parts X-Y
+ - Agent ID: [def456 or "new"]
+```
+
+**Progress Updates:**
+```
+╔══════════════════════════════════════════════════════╗
+║  Progress Update                                     ║
+╚══════════════════════════════════════════════════════╝
+ - Parts complete: X/N ([percentage]%)
+ - Implementation: X parts
+ - MBT Validation: Y parts
+ - Total commits: Z
+```
+
+**Migration Complete:**
+```
+╔══════════════════════════════════════════════════════╗
+║  Migration Complete!                                 ║
+╚══════════════════════════════════════════════════════╝
+ - Implementation Parts: X/X (100%)
+ - MBT Validations: Y/Y passing
+ - Total Commits: Z
+ - Agent IDs:
+   • spec-implementer: [abc123]
+   • mbt-validator: [def456]
+
+Next steps:
+ • Run full test suite
+ • Review all changes
+ • Create pull request
+```
+
+## Output Format Example
+
+Throughout orchestration, display progress using the standard formats above:
 
 ```
 ╔══════════════════════════════════════════════════════╗
