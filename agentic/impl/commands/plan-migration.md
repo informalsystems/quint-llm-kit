@@ -39,6 +39,7 @@ Analyze Quint specifications and codebase to create a detailed implementation pl
 - **MBT Integration**:
   - Plan must interleave implementation and MBT validation parts.
   - MBT must be implemented as early as possible to validate correctness of the implementation.
+- **Thinking and Reasoning**: Use step-by-step reasoning for complex decisions and recommendations.
 
 ## Final CLI Output
   ╔══════════════════════════════════════════════════════╗
@@ -191,6 +192,7 @@ When you begin work, you will:
    - **C)** [Approach 3] - [Trade-offs]
 
    **Agent Recommendation**: [Your analysis]
+   **Thinking and Reasoning**: [Brief reasoning for recommendation]
 
    **User Decision**: [To be filled]
    **Rationale**: [User's reasoning]
