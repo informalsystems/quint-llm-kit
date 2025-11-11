@@ -36,6 +36,9 @@ Analyze Quint specifications and codebase to create a detailed implementation pl
 - **Decisions Approval**: User must approve DECISIONS.md before proceeding to task planning.
 - **Planning Only**: This command creates the plan but does NOT implement anything.
 - **Approval Gates**: Get explicit user approval at critical points.
+- **MBT Integration**:
+  - Plan must interleave implementation and MBT validation parts.
+  - MBT must be implemented as early as possible to validate correctness of the implementation.
 
 ## Final CLI Output
   ╔══════════════════════════════════════════════════════╗
@@ -246,7 +249,9 @@ When you begin work, you will:
      * Part 4: [implementation for third transition]
      * ...
 
-   **Step 4**: Generate SPEC_MIGRATION_TASKS.md with this merged, interleaved sequence. SPEC_MIGRATION_TASKS.md can only be generated AFTER DECISIONS.md is finalized and after all pending decisions are resolved by the user.
+   **Step 4**: Use AskUserQuestion to confirm with the user that this interleaved plan makes sense before finalizing. User can ask to adjust MBT placement if needed.
+
+   **Step 5**: Generate SPEC_MIGRATION_TASKS.md with this merged, interleaved sequence. SPEC_MIGRATION_TASKS.md can only be generated AFTER DECISIONS.md is finalized and after all pending decisions are resolved by the user.
 
    The format should be:
 
