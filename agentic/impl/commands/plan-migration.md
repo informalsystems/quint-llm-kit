@@ -395,7 +395,6 @@ When you begin work, you will:
    ### Task 3.1: Setup MBT test crate (if first MBT part only)
    **Agent**: @{mbt_agent}
 
-   - [ ] Invoke `/quint-connect` slash command
    - [ ] Provide inputs:
      - Spec path: [target spec path]
      - Crate name: {project}-mbt
@@ -480,7 +479,7 @@ When you begin work, you will:
      * **CRITICAL**: MBT parts are QUALITY GATES inserted IMMEDIATELY after dependencies
      * Example: If `runFooTest` exercises transitions from Parts 1-2, then Part 3 MUST be "MBT Validation for runFooTest", NOT Part 4
      * **DO NOT** implement additional transitions (Part 4+) before validating (Part 3) - validation is BLOCKING
-     * First MBT part includes Task N.1 (setup MBT crate with `/quint-connect`) and Task N.2 (implement handlers)
+     * First MBT part includes Task N.1 (setup MBT) and Task N.2 (implement handlers)
      * Subsequent MBT parts only include Task N.2 (implement new handlers for additional transitions)
      * **Rationale**: Immediate validation prevents cascading errors from building on incorrect behavior
 
