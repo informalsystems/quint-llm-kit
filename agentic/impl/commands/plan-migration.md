@@ -12,10 +12,19 @@ Analyze Quint specifications and codebase to create a detailed implementation pl
 
 ## File Operation Constraints
 
-**CRITICAL**: Workspace organization:
-- **Decisions**: `DECISIONS.md` in workspace root
-- **Tasks**: `SPEC_MIGRATION_TASKS.md` in workspace root
-- **NEVER use `/tmp` or system temp directories**
+**REQUIRED FILES** - Create exactly FOUR files in workspace root:
+
+1. **`DECISIONS.md`** - Architectural decisions requiring user input
+2. **`SPEC_MIGRATION_TASKS.md`** - Complete task plan with implementation and MBT parts
+3. **`ARCHITECTURE_MAP.md`** - Codebase structure, key files, component locations, module organization
+4. **`INTEGRATION_GUIDE.md`** - Entry points, call paths, integration patterns, where transitions get triggered
+
+**Purpose**: Files 3-4 provide essential context for the implementation agent to correctly integrate code into the codebase.
+
+**NEVER**:
+- Use `/tmp` or system temp directories
+- Create files with different names
+- Create additional files beyond these four
 
 ## Input Contract
 
@@ -45,10 +54,12 @@ Analyze Quint specifications and codebase to create a detailed implementation pl
 
 ## Final CLI Output
   ╔══════════════════════════════════════════════════════╗
-  ║  Migration Plan for Protocol Generated               ║
+  ║  Migration Plan for [Protocol] Generated            ║
   ╚══════════════════════════════════════════════════════╝
    - DECISIONS.md created at: [path]
    - SPEC_MIGRATION_TASKS.md created at: [path]
+   - ARCHITECTURE_MAP.md created at: [path]
+   - INTEGRATION_GUIDE.md created at: [path]
    - Decisions Overview:
      - Decision 1: [brief description]
      - Decision 2: [brief description]
@@ -230,7 +241,27 @@ When you begin work, you will:
 
    **GOAL**: Minimize user questions by doing thorough analysis. Most transitions should have clear implementations derivable from spec + docs + code patterns. Only ask about genuinely ambiguous architectural choices.
 
-6. **Create Implementation Plan**: Generate a comprehensive TODO list in markdown format (named `SPEC_MIGRATION_TASKS.md`) that interleaves implementation parts with MBT validation parts.
+6. **Create Architecture Map and Integration Guide**:
+
+   Create `ARCHITECTURE_MAP.md` with:
+   - **Directory Structure**: Key directories and their purposes
+   - **Core Modules**: Main modules and what they contain
+   - **State Management**: Where application state lives, how it's structured
+   - **Key Files**: Important files and their line ranges for key functionality
+   - **Component Relationships**: How modules depend on each other
+   - **Naming Conventions**: Patterns observed in the codebase
+
+   Create `INTEGRATION_GUIDE.md` with:
+   - **Entry Points**: Where transitions get triggered (message handlers, timers, event loops, API endpoints)
+   - **Call Path Examples**: Concrete examples of how existing transitions are wired up
+   - **State Access Patterns**: How to access and modify application state
+   - **Event/Message Flow**: How to emit events, send messages, trigger side effects
+   - **Integration Testing Patterns**: Examples of existing integration tests
+   - **Common Pitfalls**: Things to avoid when integrating code
+
+   **Purpose**: These files give the implementation agent everything it needs to integrate code correctly, not create isolated functions.
+
+7. **Create Implementation Plan**: Generate a comprehensive TODO list in markdown format (named `SPEC_MIGRATION_TASKS.md`) that interleaves implementation parts with MBT validation parts.
 
    **CRITICAL UNDERSTANDING**: The plan is NOT "all implementation parts, then all MBT parts". Instead, it's an INTERLEAVED sequence where MBT parts appear IMMEDIATELY after the transitions they validate. Example: Impl Part 1 → Impl Part 2 → **MBT Part 3 validates 1-2** → Impl Part 4 → Impl Part 5 → **MBT Part 6 validates 4-5** → etc.
 
@@ -418,7 +449,7 @@ When you begin work, you will:
    - **CRITICAL**: Code must integrate into actual codebase, not isolated test-only implementations
    ```
 
-7. **Follow `main_listener` Structure for Implementation Parts**:
+8. **Follow `main_listener` Structure for Implementation Parts**:
    - **Extract transitions from `main_listener`**: Find the function in the target spec that aggregates all transitions (usually called `main_listener`, `step`, or similar)
    - **Create one implementation Part per entry**: Each `cue(listen_fn, handler_fn)` or `on_timeout_X()` becomes one implementation Part
    - **Preserve exact order for implementation parts**: Implementation parts must follow the EXACT order from the spec file
@@ -451,7 +482,7 @@ When you begin work, you will:
      * Subsequent MBT parts only include Task N.2 (implement new handlers for additional transitions)
      * **Rationale**: Immediate validation prevents cascading errors from building on incorrect behavior
 
-8. **Migration Philosophy - Direct Implementation**:
+9. **Migration Philosophy - Direct Implementation**:
    - **No backward compatibility**: You are changing the codebase to match the new spec, not maintaining parallel implementations
    - **No feature flags**: The old behavior will be replaced by the new behavior
    - **Tests will break and that's OK**: Existing tests may fail during migration phases - update them to expect new behavior
@@ -459,7 +490,7 @@ When you begin work, you will:
    - **Focus on forward progress**: The goal is a working implementation of the target spec, not preserving the old one
    - Each commit should move the codebase closer to the target spec, even if it temporarily breaks some functionality
 
-9. **Task Organization Principles**:
+10. **Task Organization Principles**:
    - **Two types of Parts**:
      * Implementation Parts: Each corresponds to ONE entry from `main_listener`
      * MBT Validation Parts: Validate multiple transitions against a Quint test
@@ -516,6 +547,8 @@ Present key results and summaries using box-drawing characters for visual emphas
 ╚══════════════════════════════════════════════════════╝
  - DECISIONS.md created at: [path]
  - SPEC_MIGRATION_TASKS.md created at: [path]
+ - ARCHITECTURE_MAP.md created at: [path]
+ - INTEGRATION_GUIDE.md created at: [path]
  - Decisions Overview:
    - Decision 1: [brief description]
    - Decision 2: [brief description]

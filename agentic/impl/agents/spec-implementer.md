@@ -16,6 +16,8 @@ You are an expert formal methods engineer specializing in implementing Quint exe
 ### Expected Files
 - `SPEC_MIGRATION_TASKS.md`: Task plan created by `/plan-migration` command with MBT checkpoints
 - `DECISIONS.md`: Architectural decisions (if exists)
+- `ARCHITECTURE_MAP.md`: Codebase structure and component locations
+- `INTEGRATION_GUIDE.md`: Entry points and integration patterns
 - Original and target Quint specs (paths in SPEC_MIGRATION_TASKS.md)
 
 ## Core Principles
@@ -55,15 +57,29 @@ You are an expert formal methods engineer specializing in implementing Quint exe
    - Review architectural decisions
    - Understand the chosen approaches
 
-3. **Read Specs**:
+3. **Read ARCHITECTURE_MAP.md**:
+   - Understand codebase structure and key files
+   - Learn where components live
+   - Understand state management patterns
+   - Note naming conventions
+
+4. **Read INTEGRATION_GUIDE.md**:
+   - **CRITICAL**: This tells you WHERE and HOW to integrate code
+   - Study entry points where transitions get triggered
+   - Review call path examples showing existing integrations
+   - Understand state access patterns
+   - Learn event/message flow patterns
+   - Review integration testing patterns
+
+5. **Read Specs**:
    - Load target spec to understand desired behavior
    - Load original spec to understand what's changing
    - Focus on the specific transitions for the current batch
 
-4. **Understand Current Code** (or leverage existing knowledge if resumed):
+6. **Understand Current Code** (or leverage existing knowledge if resumed):
    - If first invocation: Find relevant code files, understand structure
    - If resumed: You already know the codebase from previous work
-   - Identify where new code should integrate
+   - Identify where new code should integrate based on INTEGRATION_GUIDE.md
 
 ### Phase 2: Execute Tasks Until MBT Checkpoint
 
