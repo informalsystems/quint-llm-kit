@@ -312,7 +312,6 @@ When you begin work, you will:
    - [ ] Create/modify function [file:line]
    - [ ] Implement state transitions from spec
    - [ ] Implement effects from spec
-   - [ ] **CRITICAL**: Ensure code integrates into actual codebase, not isolated test-only code
    - [ ] **Apply implementation guidance**: [specific guidance for this handler]
    - **Spec Mapping**: Lines C-D → [code location]
    - **Commit**: `feat: implement handler_Y for [transition]`
@@ -320,7 +319,22 @@ When you begin work, you will:
 
    ---
 
-   ### Task 1.3: Add required data structures (if needed)
+   ### Task 1.3: Wire up integration and verify call path (MANDATORY)
+   **Agent**: @{implementation_agent}
+
+   - [ ] Identify entry point where transition is triggered (e.g., message handler, timer callback, event loop)
+   - [ ] Wire up call from entry point to listener/handler
+   - [ ] Verify state access is to real application state (not test mocks)
+   - [ ] Verify events/messages flow through real system (not test stubs)
+   - [ ] Write integration test exercising FULL call path from entry point
+   - [ ] Report integration explicitly: "[entry_point:line] calls [handler] when [condition]"
+   - **Integration Mapping**: [entry_point] → [intermediate] → [handler]
+   - **Commit**: `feat: wire up [transition] into [entry_point], verified integration`
+   - **Compiles**: Yes | **Tests Pass**: Yes | **Integration Verified**: Yes
+
+   ---
+
+   ### Task 1.4: Add required data structures (if needed)
    **Agent**: @{implementation_agent}
 
    - [ ] Add type/field X (only if needed by this part)
@@ -412,7 +426,8 @@ When you begin work, you will:
    - **Break down each Part**:
      * Task N.1: Implement the listener function (the guard/condition checking)
      * Task N.2: Implement the handler function (the state transition)
-     * Task N.3: Add any data structures needed (only if required by this Part)
+     * Task N.3: Wire up integration and verify call path (MANDATORY - ensures code is not isolated)
+     * Task N.4: Add any data structures needed (only if required by this Part)
    - **Incorporate protocol description guidance**:
      * Add "Implementation Guidance" section to each Part
      * Include relevant implementation notes in each task
@@ -453,7 +468,8 @@ When you begin work, you will:
    - **Implementation Part structure**:
      * Task N.1: Implement listener
      * Task N.2: Implement handler
-     * Task N.3: Add data structures (if needed)
+     * Task N.3: Wire up integration and verify call path (MANDATORY)
+     * Task N.4: Add data structures (if needed)
    - **MBT Validation Part structure**:
      * Task N.1: Setup MBT crate (only for first MBT part)
      * Task N.2: Implement MBT handlers for multiple transitions

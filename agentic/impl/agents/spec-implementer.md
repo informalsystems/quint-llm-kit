@@ -120,16 +120,92 @@ For each implementation part:
      - Ensure new code connects to existing systems
      - Example: If implementing `broadcast_proposal`, ensure it's called from the actual consensus logic, not just from tests
 
-   ii. **Verify Implementation**:
+   ii. **Integration Verification Protocol** (MANDATORY - Complete BEFORE committing):
+
+   **CRITICAL**: After writing code, you MUST complete this integration verification checklist and report the results explicitly.
+
+   **Step 1: Identify the Entry Point**
+   - Where does this code get triggered in the real application?
+   - Is it called from main event loop, API handler, timer callback, message handler, etc.?
+   - Document the call chain: `[entry_point] → [intermediate] → [your_code]`
+
+   **Step 2: Wire Up the Call Path**
+   - Ensure the entry point actually calls your new code
+   - Add the function call in the appropriate place
+   - Pass the correct arguments from the calling context
+   - Handle the return value appropriately
+
+   **Step 3: Verify State Access**
+   - Does your code access the actual application state (not a test mock)?
+   - If implementing a state transition, does it modify the real state structure?
+   - Are state changes persisted correctly?
+
+   **Step 4: Verify Event/Message Flow**
+   - If your code emits events/messages, do they flow through the real system?
+   - Are they sent to actual network layer, message bus, or event dispatcher?
+   - Can other parts of the system receive and process these events?
+
+   **Step 5: Integration Test**
+   - Write a test that exercises the FULL CALL PATH from entry point to your code
+   - NOT just a unit test of your isolated function
+   - Test should demonstrate real integration (e.g., HTTP request → handler → your code)
+
+   **Step 6: Report Integration**
+   - Explicitly state: "Integration verified: [entry_point] calls [your_code] when [condition]"
+   - Show the file:line where the call is made
+   - Example: "Integration verified: consensus.rs:234 calls handle_proposal() when proposal message received"
+
+   **Anti-patterns to AVOID:**
+   ```rust
+   // ❌ WRONG - Isolated function that nothing calls
+   fn handle_proposal(proposal: Proposal) {
+       // implementation
+   }
+
+   // ❌ WRONG - Only called from tests
+   #[cfg(test)]
+   mod tests {
+       fn test_handle_proposal() {
+           handle_proposal(test_proposal);  // Only usage!
+       }
+   }
+   ```
+
+   **Correct patterns:**
+   ```rust
+   // ✅ CORRECT - Wired into actual message handler
+   impl Consensus {
+       pub fn on_message(&mut self, msg: Message) {
+           match msg {
+               Message::Proposal(p) => self.handle_proposal(p), // ← Real call path
+               // ...
+           }
+       }
+
+       fn handle_proposal(&mut self, proposal: Proposal) {
+           // implementation that modifies self.state
+       }
+   }
+   ```
+
+   **If you cannot verify integration**, STOP and use `AskUserQuestion` to:
+   - Explain what you implemented
+   - Explain why you're unsure how to integrate it
+   - Ask user for guidance on the proper integration point
+
+   iii. **Compile and Test**:
    - Check that code compiles
    - Ensure no compiler warnings
+   - Run integration test to verify call path works
 
    **Create Validation Points** - For each transition implementation:
    - Write unit tests that verify the transition behaves as specified
      - Test preconditions (guards should reject invalid inputs)
      - Test state transitions (state changes as spec describes)
      - Test postconditions (assertions hold after execution)
-   - Create integration tests that check the transition in context
+   - **MANDATORY**: Create integration tests that check the FULL CALL PATH from entry point
+     - Not just unit tests of isolated functions
+     - Test should exercise real integration (e.g., message received → handler → transition)
    - Verify that invariants hold before and after the transition
    - Test edge cases and boundary conditions mentioned in the spec
    - Identify manual testing steps if automated testing is insufficient
@@ -141,12 +217,13 @@ For each implementation part:
    - Create test fixtures or factories that establish preconditions
    - Implement observability to verify postconditions (getters, logs, metrics)
 
-   iii. **Create Atomic Commit**:
+   iv. **Create Atomic Commit**:
    - Use commit message format: `feat: [description]` or `test: [description]`
    - Include: `Co-Authored-By: Claude <noreply@anthropic.com>`
    - Keep commits focused on one task
+   - **Commit message MUST include integration note**: e.g., "feat: implement handle_proposal, wired into consensus.rs:234"
 
-   iv. **Update Progress**:
+   v. **Update Progress**:
    - Mark task as complete in SPEC_MIGRATION_TASKS.md
    - Update progress percentages
 
@@ -311,10 +388,15 @@ Use consistent indentation and bullet points for hierarchical information.
 ## Success Criteria
 
 - ✅ All tasks for the implementation batch are completed
-- ✅ Code integrates into actual codebase (not isolated)
-- ✅ Each task is one atomic commit with proper message
+- ✅ **Code integrates into actual codebase (not isolated)**
+  - ✅ Entry point identified and documented (e.g., message_handler.rs:123)
+  - ✅ Call path wired up from entry point to implementation
+  - ✅ State access verified to be real application state (not test mocks)
+  - ✅ Events/messages flow through real system (not test stubs)
+  - ✅ Integration explicitly reported: "[entry:line] calls [code] when [condition]"
+- ✅ Each task is one atomic commit with proper message (including integration note)
 - ✅ Code compiles cleanly with no warnings
-- ✅ Unit tests pass (if applicable to this batch)
+- ✅ Integration tests pass (full call path from entry point)
 - ✅ SPEC_MIGRATION_TASKS.md is updated with progress
 - ✅ User is informed when batch is complete
 
