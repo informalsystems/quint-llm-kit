@@ -40,7 +40,7 @@ Analyze Quint specifications and codebase to create a detailed implementation pl
 
 ## Core Principles
 
-- **Spec is Source of Truth**: The Quint spec defines WHAT to implement. `DECISIONS.md`, `ARCHITECTURE_MAP.md` and `INTEGRATION_GUIDE.md` provides HOW to implement.
+- **Spec is Source of Truth**: The Quint spec defines WHAT to implement. Protocol description provides HOW to implement.
 - **User Interaction**: ALWAYS use `AskUserQuestion` tool for all user questions - never prompt in prose.
 - **Decisions Approval**: User must approve DECISIONS.md before proceeding to task planning.
 - **Planning Only**: This command creates the plan but does NOT implement anything.
@@ -116,9 +116,6 @@ When you begin work, you will:
       - Every implementation note MUST include a reference to the source document and line numbers
       - Format: "**Protocol Description (lines X-Y)**: [specific guidance]"
       - If guidance conflicts with spec, document it and mark as "DIVERGENCE - NEEDS CLARIFICATION"
-      
-  e) **Bookkeeping**:
-      - The Quint spec might keep bookkeeping variables. If not part of the protocol description, they can be IGNORED for the implementation. If in doubt, ask the user.
 
    These implementation notes are authoritative for HOW to implement, but the spec defines WHAT to implement.
 
@@ -280,10 +277,10 @@ When you begin work, you will:
    **Step 3**: Create a merged sequence where:
    - Implementation parts follow the `main_listener` order
    - MBT validation parts are inserted IMMEDIATELY after their dependencies
-   - Example: If `runFooTest` exercises transitions from Parts 1-2, the sequence is:
+   - Example: If `runBasicTest` exercises transitions from Parts 1-2, the sequence is:
      * Part 1: [implementation for first transition]
      * Part 2: [implementation for second transition]
-     * Part 3: MBT Validation for `runFooTest` ← IMMEDIATE insertion
+     * Part 3: MBT Validation for `runBasicTest` ← IMMEDIATE insertion
      * Part 4: [implementation for third transition]
      * ...
 
@@ -324,7 +321,7 @@ When you begin work, you will:
    - **Protocol Description (lines X-Y)**: [specific implementation guidance with line reference]
    - **Data Structures (lines A-B)**: [specific data structure choices]
    - **Performance (lines M-N)**: [specific optimizations]
-   - **DO NOT Implement (lines P-Q)**: [things that are can be INGNORED in code]
+   - **DO NOT Implement (lines P-Q)**: [things that are model-checking only]
    - [Additional guidance with line references]
 
    ### Task 1.1: Implement listener `listen_X`
@@ -360,6 +357,7 @@ When you begin work, you will:
    - [ ] Wire up call from entry point to listener/handler
    - [ ] Verify state access is to real application state (not test mocks)
    - [ ] Verify events/messages flow through real system (not test stubs)
+   - [ ] Write integration test exercising FULL call path from entry point
    - [ ] Report integration explicitly: "[entry_point:line] calls [handler] when [condition]"
    - **Integration Mapping**: [entry_point] → [intermediate] → [handler]
    - **Commit**: `feat: wire up [transition] into [entry_point], verified integration`
@@ -382,15 +380,15 @@ When you begin work, you will:
 
    ---
 
-   ## Part 3: MBT Validation for `runFooTest` (Spec test lines X-Y)
+   ## Part 3: MBT Validation for `runBasicTest` (Spec test lines X-Y)
 
    **Type**: Model-Based Testing validation
    **Agent**: @{mbt_agent}
    **Dependencies**: Parts 1, 2 must be complete
-   **Quint Test**: `runFooTest` from target spec (lines X-Y)
+   **Quint Test**: `runBasicTest` from target spec (lines X-Y)
    **Validates**: Transitions from Parts 1-2 match spec behavior
 
-   **Note**: This MBT part is inserted IMMEDIATELY after Parts 1-2 because `runFooTest` only exercises those transitions. Additional transitions are implemented AFTER validation passes.
+   **Note**: This MBT part is inserted IMMEDIATELY after Parts 1-2 because `runBasicTest` only exercises those transitions. Additional transitions are implemented AFTER validation passes.
 
    ### Task 3.1: Setup MBT test crate (if first MBT part only)
    **Agent**: @{mbt_agent}
@@ -399,7 +397,7 @@ When you begin work, you will:
      - Spec path: [target spec path]
      - Crate name: {project}-mbt
      - Crate location: tests/mbt
-     - First test: runFooTest
+     - First test: runBasicTest
    - [ ] Review generated MBT structure
    - [ ] Verify process type mappings
    - **Commit**: `test(mbt): add MBT test infrastructure`
@@ -417,13 +415,13 @@ When you begin work, you will:
      - Assert ALL events from spec (messages sent, state changes, timers updated)
      - Use spec line references in comments
      - Example: `assert!(emitted.contains(&msg), "spec line 142: must broadcast proposal")`
-   - [ ] Run: `QUINT_VERBOSE=1 cargo test --package {mbt_crate} runFooTest -- --nocapture`
+   - [ ] Run: `QUINT_VERBOSE=1 cargo test --package {mbt_crate} runBasicTest -- --nocapture`
    - [ ] Debug with QUINT_SEED if test fails
    - [ ] Fix implementation (not MBT test) if divergence found
    - [ ] Fix warnings: `cargo check --package {mbt_crate} --all-targets`
    - [ ] Format: `cargo fmt --package {mbt_crate}`
    - **Spec Mapping**: Validates Parts 1-2 against spec test
-   - **Commit**: `test(mbt): validate transitions for runFooTest`
+   - **Commit**: `test(mbt): validate transitions for runBasicTest`
    - **Compiles**: Yes | **MBT Tests Pass**: Yes
 
    ---
@@ -477,19 +475,19 @@ When you begin work, you will:
      * Incremental: Build up the system transition-by-transition, validating as you go
    - **MBT validation details** (elaborating on Step 2-3 above):
      * **CRITICAL**: MBT parts are QUALITY GATES inserted IMMEDIATELY after dependencies
-     * Example: If `runFooTest` exercises transitions from Parts 1-2, then Part 3 MUST be "MBT Validation for runFooTest", NOT Part 4
+     * Example: If `runBasicTest` exercises transitions from Parts 1-2, then Part 3 MUST be "MBT Validation for runBasicTest", NOT Part 4
      * **DO NOT** implement additional transitions (Part 4+) before validating (Part 3) - validation is BLOCKING
      * First MBT part includes Task N.1 (setup MBT) and Task N.2 (implement handlers)
      * Subsequent MBT parts only include Task N.2 (implement new handlers for additional transitions)
      * **Rationale**: Immediate validation prevents cascading errors from building on incorrect behavior
 
 9. **Migration Philosophy - Direct Implementation**:
-  - No backward compatibility: You are changing the codebase to match the new spec, not maintaining parallel implementations
-    - No feature flags: The old behavior will be replaced by the new behavior
-    - Existing tests may fail during migration phases - update them to expect new behavior
-    - Tests may be obsolete: Some tests may test transitions that no longer exist in the target spec - these should be removed or completely rewritten
-  - Focus on forward progress: The goal is a working implementation of the target spec, not preserving the old one
-  - Each commit should move the codebase closer to the target spec, even if it temporarily breaks some functionality
+   - **No backward compatibility**: You are changing the codebase to match the new spec, not maintaining parallel implementations
+   - **No feature flags**: The old behavior will be replaced by the new behavior
+   - **Tests will break and that's OK**: Existing tests may fail during migration phases - update them to expect new behavior
+   - **Tests may be obsolete**: Some tests may test transitions that no longer exist in the target spec - these should be removed or completely rewritten
+   - **Focus on forward progress**: The goal is a working implementation of the target spec, not preserving the old one
+   - Each commit should move the codebase closer to the target spec, even if it temporarily breaks some functionality
 
 10. **Task Organization Principles**:
    - **Two types of Parts**:
