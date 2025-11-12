@@ -87,224 +87,34 @@ You are an expert in Model-Based Testing (MBT) using Quint specifications and th
 
 6. **Generate MBT Crate Scaffold**:
 
-   Create the following files with the exact structure:
-
-   **File 1: `{crate_dir}/Cargo.toml`**:
-   ```toml
-   [package]
-   name = "{crate_name}"
-   description = "Library for model-based testing of {spec_name}"
-   publish = false
-
-   version.workspace = true
-   edition.workspace = true
-   repository.workspace = true
-   license.workspace = true
-   rust-version.workspace = true
-
-   [dependencies]
-   {implementation_dependencies}
-
-   quint-connect = { git = "ssh://git@github.com/informalsystems/quint-private.git", branch = "erick/connect-and-observe" }
-   pretty_assertions = { workspace = true }
-   serde = { workspace = true }
-   itf = { workspace = true }
-   ```
-
-   **File 2: `{crate_dir}/src/lib.rs`**:
-   ```rust
-   #[cfg(test)]
-   mod tests;
-   ```
-
-   **File 3: Create symlink to specs**:
-   ```bash
-   ln -s {spec_dir} {crate_dir}/specs
-   ```
-
-   **File 4: `{crate_dir}/src/tests.rs`**:
-
-   **IMPORTANT**: Start with ONLY the first Quint test. Do NOT add `#[quint_run]` simulation test yet.
-
-   ```rust
-   mod driver;
-   mod message;
-   mod state;
-   mod transition;
-
-   use driver::{DriverName};
-   use quint_connect::{quint_run, quint_test};
-
-   #[quint_test(
-       spec = "specs/{spec_file}.qnt",
-       test = "{first_test}",
-       main = "{main_module}",
-       max_samples = 1
-   )]
-   fn {first_test_snake_case}() -> {DriverName} {
-       {DriverName}::new()
-   }
-   ```
-
-   **File 5: `{crate_dir}/src/tests/driver.rs`** (skeleton):
-
-   **IMPORTANT**:
-   - Include a HashMap from process ID (String) to implementation structs/traits
-   - Transition order in `switch!` MUST match the order in the spec's main listener
-   - Method order in the impl block MUST match the order of cases in `switch!`
-
-   ```rust
-   use std::{
-       collections::{BTreeMap, HashMap},
-       panic::AssertUnwindSafe,
-   };
-   use quint_connect::{Driver as QuintDriver, *};
-   use pretty_assertions::assert_eq;
-
-   use crate::tests::{
-       state::SpecState,
-       transition,
-   };
-
-   pub struct {DriverName} {
-       processes: AssertUnwindSafe<HashMap<String, {ProcessImplType}>>,
-   }
-
-   impl {DriverName} {
-       pub fn new() -> Self {
-           Self {
-               processes: AssertUnwindSafe::default()
-           }
-       }
-   }
-
-   impl QuintDriver for {DriverName} {
-       fn nondet_picks<'a>(&'a self, step: &'a Step) -> NondetPicks<'a> {
-           transition::nondet_picks(step)
+   - Call the following script at the projects' root directory:
+     ```bash
+     python3 .claude/scripts/quint_connect/project_scaffold.py "{spec_file}" "{main_module}" "{first_test_name}" "{crate_dir}" "{crate_name}" "{driver_name}" "{process_impl_type}"
+     ```
+   - Add the test crate to the project's root `Cargo.toml` workspace
+   - Add implementation dependencies to `{crate_dir}/Cargo.toml`
+   - Add missing imports to process impl types at `{crate_dir}/src/tests/driver.rs`
+   - Add missing imports to process impl types at `{crate_dir}/src/tests/state.rs`
+   - Add all variants from the `TransitionLabel` enum to `{crate_dir}/src/tests/transition.rs`
+     - All enum arguments MUST be added to the `builder`
+       Example:
+       ```rust
+       // {crate_dir}/src/tests/types.rs
+       pub enum TransitionLabel {
+           StartRound(Round),
        }
 
-       fn action_taken(&self, step: &Step) -> Option<String> {
-           self.nondet_picks(step).get("action")
-       }
-
-       fn step(&mut self, step: &Step) -> Status {
-           switch! {
-               (self, step) {
-                   init,
-               }
-           }
-       }
-
-       fn check(&self, step: &Step) {
-           let spec_states: BTreeMap<String, SpecState> = step
-               .get_in(&["tendermint5f::choreo::s", "system"])
-               .expect("missing spec state");
-
-           for (process, impl) in self.processes.iter() {
-               let spec_state = spec_states.get(proc).expect("unkown process");
-               let impl_state = impl.into();
-
-               assert_eq!(
-                   *spec_state, impl_state,
-                   "spec and implementation states diverged for process {}",
-                   process
-               );
-           }
-       }
-   }
-
-   impl {DriverName} {
-       fn init(&mut self) {
-           todo!()
-       }
-   }
-   ```
-
-   **File 6: `{crate_dir}/src/tests/state.rs`**:
-
-   **IMPORTANT**: Use From traits for converting spec types from/to implementation types when possible. Otherwise, use methods when additional parameters are needed.
-
-   **IMPORTANT**: Fields of type `Option<T>` MUST be decoded with `serde(with = "As::<de::Option<_>>")`.
-
-   ```rust
-   use serde::Deserialize;
-   use itf::de::{self, As};
-
-   #[derive(Eq, PartialEq, Deserialize, Debug)]
-   pub struct SpecState {
-   }
-
-   impl From<&{ProcessImplType}> for SpecState {
-       fn from(impl: &{ProcessImplType}) -> Self {
-           todo!()
-       }
-   }
-   ```
-
-   **File 7: `{crate_dir}/src/tests/transition.rs`**:
-
-   **IMPORTANT**: Only include `Init` in the scaffold. Other transitions MUST be added later as needed.
-
-   ```rust
-   use quint_connect::{NondetBuilder, NondetPicks, Step};
-   use serde::Deserialize;
-   use itf::de::{self, As};
-
-   use crate::tests::message::*;
-
-   #[derive(Deserialize, Debug)]
-   struct Transition {
-       label: Label,
-   }
-
-   #[derive(Deserialize, Debug)]
-   #[serde(tag = "tag", content = "value")]
-   enum Label {
-       Init,
-   }
-
-   pub fn nondet_picks<'a>(step: &'a Step) -> NondetPicks<'a> {
-       let nondet = NondetPicks::from(step).expect("missing nondet picks");
-       let mut builder = NondetBuilder::default();
-
-       if let Some(process) = nondet.get::<String>("process") {
-           builder = builder.insert("process", process);
-       }
-
-       let label = nondet
-           .get("transition")
-           .map(|t: Transition| t.label)
-           .unwrap_or(Label::Init);
-
+       // {crate_dir}/src/tests/transition.rs
        builder = match label {
-           Label::Init => builder.insert("action", "init"),
+           None => builder.insert("action", "init"),
+           Some(TransitionLabel::StartRound(round)) => 
+             builder
+               .insert("action", "start_round")
+               .insert("round", round),
        };
-
-       builder.build()
-   }
-   ```
-
-   **File 8: `{crate_dir}/src/tests/message.rs`**:
-
-   **IMPORTANT**: Use From traits for converting spec messages from/to implementation messages when possible. Otherwise, use methods when additional parameters are needed.
-
-   **IMPORTANT**: Fields of type `Option<T>` MUST be decoded with `serde(with = "As::<de::Option<_>>")`.
-
-   **IMPORTANT**: DO NOT convert numeric values with `serde(with = "As::<de::Integer>")`.
-
-   ```rust
-   use serde::{Deserialize, Serialize};
-
-   #[derive(Serialize, Deserialize, Debug)]
-   pub struct {QuintMessageType} {
-   }
-
-   impl {QuintMessageType} {
-       pub fn to_impl(&self) -> {ImplMessageType} {
-          todo!()
-       }
-   }
-   ```
+       ```
+   - Run `cargo check -p {crate_name} --all-targets` and fix compilation errors
+   - Run `cargo fmt -p {crate_name}` to fix code style issues
 
 7. **Display Plan and Ask for Confirmation**:
    - Use `AskUserQuestion` with detailed context
