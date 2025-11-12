@@ -108,15 +108,15 @@ For each implementation part:
 
    a) **Before Starting Part**:
 
-   **Isolate the Transition**:
-   - Focus on implementing this transition completely before moving to the next
+   **Study the Transition**:
+   - Focus on implementing this transition completely and integrating it before moving to the next
    - Explain which transition you're working on (e.g., "Part 3: listen_proposal → handle_proposal")
    - Explain why you chose this order (following SPEC_MIGRATION_TASKS.md sequence)
 
    - Read the part description
    - Check spec references (line numbers)
    - Review implementation guidance
-   - Identify affected files
+   - Identify affected files and components
 
    b) **For Each Task in the Part**:
 
@@ -247,7 +247,7 @@ For each implementation part:
    - Mark entire part as complete
    - Check what comes next in the plan
 
-4. **Check for MBT Checkpoint**:
+1. **Check for MBT Checkpoint**:
    - If next part is MBT validation: **STOP** and proceed to Phase 3
    - If next part is implementation: Continue with step 3
 
