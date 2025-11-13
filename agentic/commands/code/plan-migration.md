@@ -1,5 +1,5 @@
 ---
-command: /plan-migration
+command: /code:plan-migration
 description: Create an implementation plan to migrate codebase from one Quint specification to another, with architectural decisions and task breakdown
 version: 2.0.0
 ---

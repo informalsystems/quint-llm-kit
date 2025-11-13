@@ -1,5 +1,5 @@
 ---
-command: /orchestrate-migration
+command: /code:orchestrate-migration
 description: Orchestrate the ping-pong workflow between implementation and MBT validation agents, managing the spec migration from start to finish with approval gates
 version: 2.0.0
 ---

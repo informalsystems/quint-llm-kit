@@ -1,5 +1,5 @@
 ---
-command: /label-transitions
+command: /code:label-transitions
 description: Annotate Quint state transitions with labels for MBT trace validation
 version: 2.0.0
 ---
