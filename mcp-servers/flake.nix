@@ -51,7 +51,7 @@
 
           src = ./kb;
 
-          npmDepsHash = "sha256-073QrQgBGv6oIOHXF6nJ6x0BQX4M9r4VoXmge/Eilgc=";
+          npmDepsHash = "sha256-wxugLBO1QtSgq0ap9rmg9heRX0xjpHjqekRY2X4f25A=";
 
           nativeBuildInputs = with pkgs; [
             python3
