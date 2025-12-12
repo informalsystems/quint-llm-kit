@@ -24,7 +24,6 @@ help:
 	@echo ""
 	@echo "Persistent volumes:"
 	@echo "  claude-config    - Stores Claude authentication and settings"
-	@echo "  claude-kb-data   - Stores Quint KB MCP server indices"
 	@echo ""
 
 build:
@@ -65,6 +64,5 @@ clean:
 
 clean-all: clean
 	@docker volume rm claude-config 2>/dev/null || true
-	@docker volume rm claude-kb-data 2>/dev/null || true
 	@echo "All volumes removed"
 

@@ -49,7 +49,6 @@ fi
 docker run -d \
   -v ${PATH_TO_CODE}:/workspace \
   -v claude-config:/home/dev/.config \
-  -v claude-kb-data:/home/dev/mcp-servers/kb/data \
   --name claude-code-dev \
   --label project=claude-code \
   claudecode:latest
@@ -59,22 +58,8 @@ echo ""
 echo "✓ Agents available in: /home/dev/.claude/"
 echo "✓ MCP servers: quint-lsp, quint-kb (configured via .mcp.json)"
 echo "✓ Workspace mounted at: /workspace"
-echo "✓ Persistent volumes: claude-config (auth), claude-kb-data (indices)"
+echo "✓ Persistent volume: claude-config (auth)"
 echo ""
-echo "Waiting for MCP initialization to complete..."
-# Wait for entrypoint to finish initialization (check for completion marker or timeout)
-sleep 3
-
-# Check if initialization is still running by looking for the setup process
-for i in {1..30}; do
-  if docker exec claude-code-dev pgrep -f "npm run setup" > /dev/null 2>&1; then
-    echo -n "."
-    sleep 2
-  else
-    break
-  fi
-done
-echo ""
-echo "✓ MCP initialization complete"
+echo "✓ KB indices pre-built in image (instant startup)"
 echo ""
 echo "Use 'make exec' to start Claude Code."

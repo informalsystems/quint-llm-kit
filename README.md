@@ -206,11 +206,6 @@ The container uses Docker named volumes to persist data across restarts:
   - Location: `/home/dev/.config`
   - Persists: Your login, API keys, and Claude Code preferences
 
-- **`claude-kb-data`** - Stores Quint KB MCP server indices
-  - Location: `/home/dev/mcp-servers/kb/data`
-  - Persists: Pre-built vector embeddings and search indices
-  - Benefit: Faster startup on subsequent runs (no rebuild needed)
-
 **Volume Management:**
 ```bash
 # Normal cleanup (keeps volumes)
@@ -225,6 +220,12 @@ docker volume ls | grep claude
 # Remove only auth (forces re-login)
 docker volume rm claude-config
 ```
+
+**Note on KB Indices**: Quint KB MCP server indices (patterns, docs, examples, etc.) are now **pre-built into the Docker image** during build time. This means:
+- ✅ Instant startup (no waiting for index building)
+- ✅ No runtime dependencies or network calls
+- ✅ Consistent indices across all container instances
+- 📦 Slightly larger image size (~50MB for indices)
 
 ## Project Structure
 
@@ -264,7 +265,9 @@ docker volume rm claude-config
 
 **Persistent Volumes:**
 - **Config**: `claude-config` → `/home/dev/.config` (authentication, settings)
-- **KB Data**: `claude-kb-data` → `/home/dev/mcp-servers/kb/data` (search indices)
+
+**Pre-built Data** (in image):
+- **KB Indices**: `/home/dev/mcp-servers/kb/data` (patterns, docs, examples - built during image build)
 
 ## Included Agents and Tools
 

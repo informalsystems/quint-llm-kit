@@ -50,6 +50,7 @@ RUN useradd -m -s /bin/bash dev && \
 # Create necessary directories for agents and MCP servers
 RUN mkdir -p /home/dev/.claude && \
 	mkdir -p /home/dev/mcp-servers && \
+	mkdir -p /home/dev/mcp-servers/kb/data && \
 	chown -R dev:dev /home/dev/.claude /home/dev/mcp-servers
 
 # Copy agentic directory (agents, commands, guidelines, schemas, scripts)
@@ -79,12 +80,12 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV GOPATH=/home/dev/go
 ENV PATH=/usr/local/go/bin:$GOPATH/bin:/home/dev/.cargo/bin:$PATH
 
-RUN cargo install taplo-cli
-
-# Install and build KB MCP server (skip setup/embeddings for faster builds)
+# Install and build KB MCP server with indices
 WORKDIR /home/dev/mcp-servers/kb
 RUN npm install && \
-	npm run build
+	npm run build && \
+	npm run setup && \
+	chown -R dev:dev /home/dev/mcp-servers/kb/data
 
 # Return to workspace
 WORKDIR /workspace
