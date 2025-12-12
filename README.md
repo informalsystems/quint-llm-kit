@@ -49,7 +49,7 @@ make build
 make run
 
 # Option 2: Specify project path directly
-make run PATH=~/my-project
+make run DIR=~/my-project
 ```
 
 **That's it!** The MCP servers (quint-lsp and quint-kb) are automatically configured on first run. All agents and commands are ready to use immediately.
@@ -65,7 +65,7 @@ make run
 
 **Direct path** (skip prompt):
 ```bash
-make run PATH=~/my-project
+make run DIR=~/my-project
 ```
 
 This command will:
@@ -154,13 +154,14 @@ If you prefer to run the container manually in detached mode:
 
 ```bash
 docker run -d \
-  -v ~/.config/nvim:/home/developer/.config/nvim:ro \
+  -v ~/.config/nvim:/home/dev/.config/nvim:ro \
   -v /usr/local/bin/nvim:/usr/local/bin/nvim \
   -v /path/to/your/code:/workspace \
+  -v claude-config:/home/dev/.config \
+  -v claude-kb-data:/home/dev/mcp-servers/kb/data \
   --name claude-code-dev \
   --label project=claude-code \
-  claudecode:latest \
-  tail -f /dev/null
+  claudecode:latest
 ```
 
 Then exec into it:
@@ -179,21 +180,50 @@ docker exec -it claude-code-dev /bin/bash
 
 - `make help` - Display all available commands
 - `make build` - Build the Docker image
-- `make run [PATH=...]` - Start container and launch Claude Code (interactive or with PATH)
-- `make start [PATH=...]` - Start container only (interactive or with PATH)
+- `make run [DIR=...]` - Start container and launch Claude Code (interactive or with DIR)
+- `make start [DIR=...]` - Start container only (interactive or with DIR)
 - `make exec` - Attach to running container with Claude Code
 - `make shell` - Open bash shell in running container
 - `make stop` - Stop the container
 - `make restart` - Stop and restart the container
 - `make status` - Show container status
 - `make logs` - Show and follow container logs
-- `make clean` - Remove container and image (full cleanup)
+- `make clean` - Remove container and image (keeps persistent volumes)
+- `make clean-all` - Remove everything including persistent volumes
 
 **Examples:**
 ```bash
-make run                     # Interactive prompt
-make run PATH=~/my-project   # Direct path
-make start PATH=/workspace   # Start without attaching
+make run                          # Interactive prompt
+make run DIR=~/my-project         # Direct path
+make start DIR=~/projects/quint   # Start without attaching
+```
+
+## Persistent Volumes
+
+The container uses Docker named volumes to persist data across restarts:
+
+- **`claude-config`** - Stores Claude Code authentication and settings
+  - Location: `/home/dev/.config`
+  - Persists: Your login, API keys, and Claude Code preferences
+
+- **`claude-kb-data`** - Stores Quint KB MCP server indices
+  - Location: `/home/dev/mcp-servers/kb/data`
+  - Persists: Pre-built vector embeddings and search indices
+  - Benefit: Faster startup on subsequent runs (no rebuild needed)
+
+**Volume Management:**
+```bash
+# Normal cleanup (keeps volumes)
+make clean
+
+# Full cleanup (removes volumes too - you'll need to login again)
+make clean-all
+
+# Manually inspect volumes
+docker volume ls | grep claude
+
+# Remove only auth (forces re-login)
+docker volume rm claude-config
 ```
 
 ## Project Structure
@@ -231,6 +261,10 @@ make start PATH=/workspace   # Start without attaching
 - **MCP Config**: `/workspace/.mcp.json` (created automatically in your project directory)
 - **Agents Directory**: `/home/dev/.claude/` (contains agents, commands, guidelines, schemas)
 - **MCP Servers**: `/home/dev/mcp-servers/` (kb server and lsp-setup scripts)
+
+**Persistent Volumes:**
+- **Config**: `claude-config` → `/home/dev/.config` (authentication, settings)
+- **KB Data**: `claude-kb-data` → `/home/dev/mcp-servers/kb/data` (search indices)
 
 ## Included Agents and Tools
 

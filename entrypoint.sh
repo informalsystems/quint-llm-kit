@@ -1,7 +1,7 @@
 #!/bin/bash
 # Entrypoint script to ensure MCP servers are properly configured
 
-set -e
+set -e -o pipefail
 
 MCP_JSON="/workspace/.mcp.json"
 KB_SERVER_PATH="/home/dev/mcp-servers/kb/dist/server.js"
@@ -22,8 +22,10 @@ if [ ! -f "$KB_DATA_DIR/docs-index.json" ] || [ ! -d "$KB_DATA_DIR/embeddings" ]
     done
 
     # Check if setup succeeded
+    set +e  # Temporarily disable exit on error
     wait $SETUP_PID
     SETUP_EXIT=$?
+    set -e  # Re-enable exit on error
 
     if [ $SETUP_EXIT -eq 0 ]; then
         echo ""
@@ -32,6 +34,7 @@ if [ ! -f "$KB_DATA_DIR/docs-index.json" ] || [ ! -d "$KB_DATA_DIR/embeddings" ]
         echo ""
         echo "⚠ KB setup failed (exit code: $SETUP_EXIT), KB server may not work"
         echo "  Check /tmp/kb-setup.log for details"
+        cat /tmp/kb-setup.log
     fi
 
     cd /workspace
