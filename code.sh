@@ -42,8 +42,13 @@ docker run -d \
   -v ${PATH_TO_CODE}:/workspace \
   --name claude-code-dev \
   --label project=claude-code \
-  claudecode:latest \
-  tail -f /dev/null
+  claudecode:latest
 
 echo "Container 'claude-code-dev' started in detached mode."
-echo "Use 'make exec' to enter the container."
+echo ""
+echo "✓ Agents available in: /home/dev/.claude/"
+echo "✓ MCP servers: quint-lsp, quint-kb (configured via .mcp.json)"
+echo "✓ Workspace mounted at: /workspace"
+echo ""
+echo "The entrypoint will create .mcp.json in your workspace if needed."
+echo "Use 'make exec' to start Claude Code."
