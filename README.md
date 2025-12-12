@@ -14,9 +14,10 @@ This project provides a Docker-based environment that includes:
 - Common development tools (git, curl, jq, tree, etc.)
 - Non-root user for security
 - **Quint-specific tools:**
+  - Quint CLI (for running, testing, and type-checking specs)
+  - Quint Language Server (for IDE-like features)
   - Specialized agents for Quint specification work (analyzer, implementer, verifier, etc.)
   - MCP servers for Quint documentation and LSP integration
-  - Quint Language Server
   - Pre-configured commands for common Quint workflows
 
 ## Prerequisites
@@ -44,8 +45,11 @@ The easiest way to get started:
 # Build the image (includes all agents and MCP servers)
 make build
 
-# Run Claude Code (will prompt for your project path)
+# Option 1: Interactive prompt for project path
 make run
+
+# Option 2: Specify project path directly
+make run PATH=~/my-project
 ```
 
 **That's it!** The MCP servers (quint-lsp and quint-kb) are automatically configured on first run. All agents and commands are ready to use immediately.
@@ -54,15 +58,21 @@ make run
 
 #### Option 1: One-Step Run (Recommended)
 
+**Interactive mode** (prompts for path):
 ```bash
 make run
 ```
 
+**Direct path** (skip prompt):
+```bash
+make run PATH=~/my-project
+```
+
 This command will:
 
-1. Prompt you for your project directory path
-2. Start the container in detached mode
-3. Automatically attach you to Claude Code
+1. Start the container with your project mounted at `/workspace`
+2. Automatically attach you to Claude Code
+3. Configure MCP servers on first run
 
 #### Option 2: Manual Steps
 
@@ -169,7 +179,8 @@ docker exec -it claude-code-dev /bin/bash
 
 - `make help` - Display all available commands
 - `make build` - Build the Docker image
-- `make run` - Start container and launch Claude Code (interactive)
+- `make run [PATH=...]` - Start container and launch Claude Code (interactive or with PATH)
+- `make start [PATH=...]` - Start container only (interactive or with PATH)
 - `make exec` - Attach to running container with Claude Code
 - `make shell` - Open bash shell in running container
 - `make stop` - Stop the container
@@ -177,6 +188,13 @@ docker exec -it claude-code-dev /bin/bash
 - `make status` - Show container status
 - `make logs` - Show and follow container logs
 - `make clean` - Remove container and image (full cleanup)
+
+**Examples:**
+```bash
+make run                     # Interactive prompt
+make run PATH=~/my-project   # Direct path
+make start PATH=/workspace   # Start without attaching
+```
 
 ## Project Structure
 

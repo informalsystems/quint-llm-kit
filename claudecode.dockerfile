@@ -23,8 +23,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 	&& apt-get install -y nodejs \
 	&& rm -rf /var/lib/apt/lists/*
 
-# Install Claude Code and Quint Language Server (as root before switching users)
-RUN npm install -g @anthropic-ai/claude-code @informalsystems/quint-language-server
+# Install Claude Code, Quint CLI, and Quint Language Server (as root before switching users)
+RUN npm install -g @anthropic-ai/claude-code @informalsystems/quint @informalsystems/quint-language-server
 
 # Install Go
 RUN curl -OL https://go.dev/dl/go1.24.1.linux-amd64.tar.gz && \

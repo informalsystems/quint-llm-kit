@@ -5,30 +5,34 @@ help:
 	@echo "==============================="
 	@echo ""
 	@echo "Available commands:"
-	@echo "  make build      - Build the Docker image"
-	@echo "  make run        - Start the container (interactive path prompt) and exec into Claude container"
-	@echo "  make exec       - Attach to running container with Claude Code"
-	@echo "  make shell      - Open bash shell in running container"
-	@echo "  make stop       - Stop and remove the container"
-	@echo "  make start      - Start the container (non-interactive)"
-	@echo "  make restart    - Stop and restart the container"
-	@echo "  make status     - Show container status"
-	@echo "  make logs       - Show container logs"
-	@echo "  make clean      - Remove container and image"
+	@echo "  make build           - Build the Docker image"
+	@echo "  make run [PATH=...]  - Start container and exec into Claude (interactive or with PATH)"
+	@echo "  make start [PATH=...] - Start container only (interactive or with PATH)"
+	@echo "  make exec            - Attach to running container with Claude Code"
+	@echo "  make shell           - Open bash shell in running container"
+	@echo "  make stop            - Stop and remove the container"
+	@echo "  make restart         - Stop and restart the container"
+	@echo "  make status          - Show container status"
+	@echo "  make logs            - Show container logs"
+	@echo "  make clean           - Remove container and image"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make run                    # Interactive prompt for path"
+	@echo "  make run PATH=~/my-project  # Start with specific path"
 	@echo ""
 
 build:
 	docker build -t claudecode:latest -f claudecode.dockerfile .
 
 run:
-	@bash code.sh
+	@bash code.sh $(PATH)
 	docker exec -it claude-code-dev claude
 
 exec:
 	docker exec -it claude-code-dev claude
 
 start:
-	@bash code.sh
+	@bash code.sh $(PATH)
 
 shell:
 	docker exec -it claude-code-dev /bin/bash
