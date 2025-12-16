@@ -26,11 +26,20 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 # Install Claude Code, Quint CLI, and Quint Language Server (as root before switching users)
 RUN npm install -g @anthropic-ai/claude-code @informalsystems/quint @informalsystems/quint-language-server
 
-# Install Go
-RUN curl -OL https://go.dev/dl/go1.24.1.linux-amd64.tar.gz && \
-	tar -C /usr/local -xzf go1.24.1.linux-amd64.tar.gz && \
-	rm go1.24.1.linux-amd64.tar.gz
 
+ARG GO_VERSION=1.24.1
+
+RUN set -eux; \
+  arch="$(dpkg --print-architecture)"; \
+  case "$arch" in \
+    amd64) goarch="amd64" ;; \
+    arm64) goarch="arm64" ;; \
+    *) echo "unsupported arch: $arch" >&2; exit 1 ;; \
+  esac; \
+  curl -fsSLO "https://go.dev/dl/go${GO_VERSION}.linux-${goarch}.tar.gz"; \
+  tar -C /usr/local -xzf "go${GO_VERSION}.linux-${goarch}.tar.gz"; \
+  rm "go${GO_VERSION}.linux-${goarch}.tar.gz"
+# Install Go
 # Set Go environment temporarily for building mcp-language-server
 ENV PATH=/usr/local/go/bin:$PATH
 ENV GOPATH=/tmp/go
