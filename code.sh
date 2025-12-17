@@ -48,7 +48,7 @@ fi
 
 docker run -d \
   -v ${PATH_TO_CODE}:/workspace \
-  -v claude-config:/home/dev/.config \
+  -v claude-config:/home/dev/.claude \
   --name claude-code-dev \
   --label project=claude-code \
   claudecode:latest
