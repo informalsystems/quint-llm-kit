@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "quint-lsp": {
+      "command": "mcp-language-server",
+      "args": [
+        "--workspace",
+        "/workspace",
+        "--lsp",
+        "quint-language-server",
+        "--",
+        "--stdio"
+      ]
+    },
+    "quint-kb": {
+      "command": "node",
+      "args": [
+        "/home/dev/mcp-servers/kb/dist/server.js"
+      ]
+    }
+  }
+}
