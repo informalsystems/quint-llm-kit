@@ -28,6 +28,7 @@ RUN npm install -g @anthropic-ai/claude-code @informalsystems/quint @informalsys
 
 
 ARG GO_VERSION=1.24.1
+ARG INSTALL_FOUNDRY=false
 
 RUN set -eux; \
   arch="$(dpkg --print-architecture)"; \
@@ -85,9 +86,15 @@ USER dev
 # Install Rust for the dev user (after switching to dev user)
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
+# Install Foundry (forge, cast, anvil, chisel) for Solidity development (optional)
+RUN if [ "$INSTALL_FOUNDRY" = "true" ]; then \
+    curl -L https://foundry.paradigm.xyz | bash && \
+    /home/dev/.foundry/bin/foundryup; \
+  fi
+
 # Set environment variables
 ENV GOPATH=/home/dev/go
-ENV PATH=/usr/local/go/bin:$GOPATH/bin:/home/dev/.cargo/bin:$PATH
+ENV PATH=/usr/local/go/bin:$GOPATH/bin:/home/dev/.cargo/bin:/home/dev/.foundry/bin:$PATH
 
 # Install and build KB MCP server with indices
 WORKDIR /home/dev/mcp-servers/kb

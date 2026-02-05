@@ -9,6 +9,7 @@ This project provides a Docker-based environment that includes:
 - Go 1.24.1
 - Python 3 with pip and venv
 - Rust (latest stable via rustup)
+- Foundry toolchain (optional: forge, cast, anvil, chisel for Solidity development)
 - Node.js 20.x
 - Claude Code CLI
 - Common development tools (git, curl, jq, tree, etc.)
@@ -34,6 +35,30 @@ make build
 ```
 
 This builds the Docker image tagged as `claudecode:latest`.
+
+### Building with Foundry Support
+
+If you're working with Solidity contracts (like the examples in `mcp-servers/kb/kb/examples/solidity/`), you can include Foundry tools:
+
+```bash
+# Option 1: Using the convenience target
+make build-foundry
+
+# Option 2: Passing build args explicitly
+docker build --build-arg INSTALL_FOUNDRY=true -t claudecode:latest -f claudecode.dockerfile .
+```
+
+This installs the complete Foundry toolchain: forge, cast, anvil, and chisel.
+
+To verify Foundry installation inside the container:
+
+```bash
+make shell
+forge --version
+cast --version
+anvil --version
+chisel --version
+```
 
 ## Usage
 
