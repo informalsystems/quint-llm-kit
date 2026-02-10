@@ -6,6 +6,7 @@ help:
 	@echo ""
 	@echo "Available commands:"
 	@echo "  make build              - Build the Docker image"
+	@echo "  make build-foundry      - Build with Foundry tools (forge, cast, anvil, chisel)"
 	@echo "  make run [DIR=...]      - Start container and exec into Claude (interactive or with DIR)"
 	@echo "  make start [DIR=...]    - Start container only (interactive or with DIR)"
 	@echo "  make exec               - Attach to running container with Claude Code"
@@ -28,6 +29,9 @@ help:
 
 build:
 	docker build -t claudecode:latest -f claudecode.dockerfile .
+
+build-foundry:
+	docker build --build-arg INSTALL_FOUNDRY=true -t claudecode:latest -f claudecode.dockerfile .
 
 run:
 	@bash code.sh $(DIR)
