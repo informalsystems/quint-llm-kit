@@ -65,8 +65,17 @@ RUN mkdir -p /home/dev/.claude && \
 # Copy agentic directory (agents, commands, guidelines, schemas, scripts)
 COPY --chown=dev:dev agentic/ /home/dev/.claude/
 
-# Copy MCP servers
-COPY --chown=dev:dev mcp-servers/ /home/dev/mcp-servers/
+# Copy MCP servers - split into layers for better caching:
+# Layer 1: LSP setup (rarely changes)
+COPY --chown=dev:dev mcp-servers/lsp-setup/ /home/dev/mcp-servers/lsp-setup/
+COPY --chown=dev:dev mcp-servers/README.md /home/dev/mcp-servers/README.md
+
+# Layer 2: KB server code (changes occasionally)
+COPY --chown=dev:dev mcp-servers/kb/package.json mcp-servers/kb/package-lock.json /home/dev/mcp-servers/kb/
+COPY --chown=dev:dev mcp-servers/kb/tsconfig.json mcp-servers/kb/jest.config.js /home/dev/mcp-servers/kb/
+COPY --chown=dev:dev mcp-servers/kb/src/ /home/dev/mcp-servers/kb/src/
+COPY --chown=dev:dev mcp-servers/kb/scripts/ /home/dev/mcp-servers/kb/scripts/
+COPY --chown=dev:dev mcp-servers/kb/tests/ /home/dev/mcp-servers/kb/tests/
 
 # Copy setup script (for manual reconfiguration if needed)
 COPY --chown=dev:dev setup-mcp.sh /home/dev/setup-mcp.sh
@@ -89,11 +98,16 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV GOPATH=/home/dev/go
 ENV PATH=/usr/local/go/bin:$GOPATH/bin:/home/dev/.cargo/bin:$PATH
 
-# Install and build KB MCP server with indices
+# Install dependencies and compile KB server (cached unless code changes)
 WORKDIR /home/dev/mcp-servers/kb
 RUN npm install && \
-	npm run build && \
-	npm run setup && \
+	npm run build
+
+# Layer 3: KB content (changes frequently - patterns, docs, examples, templates)
+COPY --chown=dev:dev mcp-servers/kb/kb/ /home/dev/mcp-servers/kb/kb/
+
+# Build indices from content (only re-runs when content changes)
+RUN npm run setup && \
 	chown -R dev:dev /home/dev/mcp-servers/kb/data
 
 # Return to workspace

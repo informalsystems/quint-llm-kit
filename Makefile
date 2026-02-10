@@ -10,7 +10,7 @@ help:
 	@echo "  make start [DIR=...]    - Start container only (interactive or with DIR)"
 	@echo "  make exec               - Attach to running container with Claude Code"
 	@echo "  make shell              - Open bash shell in running container"
-	@echo "  make stop               - Stop and remove the container"
+	@echo "  make stop               - Stop the container"
 	@echo "  make restart            - Stop and restart the container"
 	@echo "  make status             - Show container status"
 	@echo "  make logs               - Show container logs"
@@ -45,7 +45,11 @@ shell:
 stop:
 	docker stop claude-code-dev
 
-restart: stop run
+restart:
+	docker stop claude-code-dev 2>/dev/null || true
+	docker rm claude-code-dev 2>/dev/null || true
+	@bash code.sh $(DIR)
+	docker exec -it claude-code-dev claude
 
 status:
 	@docker ps --filter "name=claude-code-dev" --filter "label=project=claude-code"
