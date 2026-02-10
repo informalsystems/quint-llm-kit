@@ -24,7 +24,13 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Install Claude Code, Quint CLI, and Quint Language Server (as root before switching users)
-RUN npm install -g @anthropic-ai/claude-code @informalsystems/quint @informalsystems/quint-language-server
+# NOTE: Packages are installed separately rather than in a single command to avoid dependency
+# resolution issues. Installing them together (npm install -g pkg1 pkg2 pkg3) can result in
+# missing transitive dependencies like 'lodash' from @informalsystems/quint. The separate
+# installation ensures each package gets its full dependency tree properly resolved.
+RUN npm install -g @anthropic-ai/claude-code && \
+	npm install -g @informalsystems/quint && \
+	npm install -g @informalsystems/quint-language-server
 
 
 ARG GO_VERSION=1.24.1
