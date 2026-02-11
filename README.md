@@ -1,5 +1,7 @@
 # LLM tools for Quint
 
+> **⚠️ DISCLAIMER**: The agents and tools in this repository were developed for internal use at Informal Systems and have not been thoroughly evaluated or tested for general public use. They are provided as-is without any warranties or guarantees. We make no representations about their suitability, reliability, or fitness for any particular purpose. Use at your own risk. We accept no responsibility or liability for any consequences, damages, or issues that may arise from using these tools.
+
 A containerized development environment for using Claude Code with Quint-related agents, commands and MCP servers.
 
 ## Overview
