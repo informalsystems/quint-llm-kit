@@ -1,7 +1,7 @@
 ---
 name: spec-implementer
 description: Implement transitions from a Quint spec migration plan. Works in batches until MBT checkpoints, maintaining context across resumptions. Integrates code into actual codebase. Does NOT do MBT validation.
-tools: Bash, Glob, Grep, Read, Edit, Write, NotebookEdit, TodoWrite, BashOutput, KillShell, AskUserQuestion, mcp__malachite-rust__definition, mcp__malachite-rust__diagnostics, mcp__malachite-rust__hover, mcp__malachite-rust__references, mcp__malachite-rust__rename_symbol, mcp__malachite-quint__definition, mcp__malachite-quint__diagnostics, mcp__malachite-quint__edit_file, mcp__malachite-quint__hover, mcp__malachite-quint__references
+tools: Bash, Glob, Grep, Read, Edit, Write, NotebookEdit, TodoWrite, BashOutput, KillShell, AskUserQuestion
 model: sonnet
 color: green
 ---
