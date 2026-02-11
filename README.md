@@ -1,16 +1,18 @@
-<p align="center">
-  <img src="artwork.jpg" alt="Robot reading a Quint book" width="600"/>
-</p>
+# Quint LLM Kit
+[![Apache-2.0][apache-badge]][apache-url]
 
-# LLM tools for Quint
+[apache-badge]: https://img.shields.io/badge/license-Apache%20License%202.0-blue
+[apache-url]: https://github.com/informalsystems/quint-connect/blob/main/LICENSE
 
-> **⚠️ DISCLAIMER**: The agents and tools in this repository were developed for internal use at Informal Systems and have not been thoroughly evaluated or tested for general public use. They are provided as-is without any warranties or guarantees. We make no representations about their suitability, reliability, or fitness for any particular purpose. Use at your own risk. We accept no responsibility or liability for any consequences, damages, or issues that may arise from using these tools.
+![Robot reading a Quint book](artwork.jpg)
 
 A containerized development environment for using Claude Code with Quint-related agents, commands and MCP servers.
 
+> **⚠️ DISCLAIMER**: The agents and tools in this repository were developed for internal use at Informal Systems and have not been thoroughly evaluated or tested for general public use. They are provided as-is without any warranties or guarantees. We make no representations about their suitability, reliability, or fitness for any particular purpose. Use at your own risk. We accept no responsibility or liability for any consequences, damages, or issues that may arise from using these tools.
+
 ## About
 
-This tooling was initially developed for the experiments reported in our blog post [**"Reliable Software in the LLM Era"**](https://quint-lang.org/posts/llm_era). We invite you to check it out to learn about our vision for LLM-assisted formal specification! Since that initial work, we've been actively using and refining these tools internally at Informal Systems for our own Quint projects.
+This tooling was initially developed for the experiments reported in our blog post [**Reliable Software in the LLM Era**](https://quint-lang.org/posts/llm_era). We invite you to check it out to learn about our vision for LLM-assisted formal specification! Since that initial work, we've been actively using and refining these tools internally at Informal Systems for our own Quint projects.
 
 **We welcome collaborations!** As we continue to refine and expand this toolkit for our internal use, we plan to regularly push updates to this repository. If you're interested in contributing, have suggestions, or want to share your experiences using these tools, please open an issue or reach out.
 
