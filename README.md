@@ -4,7 +4,7 @@
 [apache-badge]: https://img.shields.io/badge/license-Apache%20License%202.0-blue
 [apache-url]: https://github.com/informalsystems/quint-connect/blob/main/LICENSE
 
-![Robot reading a Quint book](artwork.jpg)
+![Robot illustrations doing four different tasks, with descriptions: 1. Writes specs from scratch, 2. Assit on validating specs, 3. Writes code from specs, 4. Sets up Quint Connect](https://github.com/user-attachments/assets/c5c31ab5-3769-428a-9438-b5470e7c43a4)
 
 A containerized development environment for using Claude Code with Quint-related agents, commands and MCP servers.
 
