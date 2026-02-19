@@ -6,7 +6,7 @@
 
 ![Robot illustrations doing four different tasks, with descriptions: 1. Writes specs from scratch, 2. Assit on validating specs, 3. Writes code from specs, 4. Sets up Quint Connect](https://github.com/user-attachments/assets/c5c31ab5-3769-428a-9438-b5470e7c43a4)
 
-A containerized development environment for using Claude Code with Quint-related agents, commands and MCP servers.
+A containerized development environment for using Claude Code with [Quint](https://quint-lang.org/)-related agents, commands and MCP servers.
 
 > **⚠️ DISCLAIMER**: The agents and tools in this repository were developed for internal use at Informal Systems and have not been thoroughly evaluated or tested for general public use. They are provided as-is without any warranties or guarantees. We make no representations about their suitability, reliability, or fitness for any particular purpose. Use at your own risk. We accept no responsibility or liability for any consequences, damages, or issues that may arise from using these tools.
 
