@@ -105,8 +105,8 @@ A model that's too constrained will silently rule out the behaviors you care abo
   model created
        │
        ▼
-  quint typecheck specs/myspec.qnt
-  ─────────────────────────────────── always start here
+  $ quint typecheck specs/myspec.qnt
+  ─────────────────────────────────── always start here (shell command)
   Catches type errors and syntax issues before running anything.
        │
        ├── errors? ──► fix, then recheck
@@ -119,7 +119,7 @@ A model that's too constrained will silently rule out the behaviors you care abo
   your model may be over-constrained.
        │
        ▼
-  quint run specs/myspec.qnt --invariant=<name>
+  $ quint run specs/myspec.qnt --invariant=<name>
   ─────────────────────────────────── safety check
   Runs thousands of random scenarios to try to violate a property
   you've defined (e.g. "no two nodes decide different values").
@@ -134,7 +134,7 @@ A model that's too constrained will silently rule out the behaviors you care abo
        │
        ▼
   /verify:check-types              ← confirm all message type variants are reachable
-  /verify:check-listeners          ← confirm all protocol handlers fire correctly (Choreo only)
+  /verify:check-listeners          ← confirm all protocol handlers fire correctly (Choreo only - using a distributed protocol)
 ```
 
 ### All `/verify:*` commands
@@ -144,7 +144,7 @@ A model that's too constrained will silently rule out the behaviors you care abo
 | `/verify:generate-witness` | Generates scenario tests that confirm your model can reach key states |
 | `/verify:explain-trace` | Walks through a failing scenario step by step in plain language |
 | `/verify:debug-witness` | Progressively relaxes constraints to find why a scenario can't be reached |
-| `/verify:test-listeners` | Generates concrete test runs from failing scenarios (Choreo only) |
+| `/verify:test-listeners` | Generates concrete test runs from failing scenarios (Choreo only - using a distributed protocol) |
 | `/verify:check-types` | Confirms every message or event type defined in the model is actually reachable |
 | `/verify:check-listeners` | Confirms every protocol message handler can be triggered |
 
@@ -210,7 +210,7 @@ Starting fresh:
 
 Checking your model:
   /verify:start              (or /verify:generate-witness)
-  quint typecheck specs/myspec.qnt
+  $ quint typecheck specs/myspec.qnt    ← shell command; not a Claude command
   /verify:check-types
   /verify:check-listeners
 
@@ -231,11 +231,22 @@ Updating the model:
 ## Typical first session
 
 ```
+── Setup ────────────────────────────────────────────────────────────────────
 1.  make build && make run DIR=~/my-project
+
+── Spec ─────────────────────────────────────────────────────────────────────
 2.  /spec:next                   # see where you are
 3.  /spec:setup-choreo           # (skip if not a distributed protocol)
 4.  /spec:start                  # generate a model from your docs
-5.  quint typecheck specs/...    # fix any type errors
-6.  /verify:generate-witness  # confirm the model can reach the states you care about
-7.  /spec:next                   # see what's left to do
+
+── Verify ───────────────────────────────────────────────────────────────────
+5.  $ quint typecheck specs/...  # shell command — fix any type errors
+6.  /verify:start                # confirm the model can reach the states you care about
+7.  /verify:check-types          # confirm all message/event type variants are reachable
+8.  /verify:check-listeners      # confirm all protocol handlers fire (Choreo only - using a distributed protocol)
+9.  /spec:next                   # see what's left to do
+
+── Code ─────────────────────────────────────────────────────────────────────
+10. /code:start                  # create an implementation plan from the spec
+11. /code:orchestrate-migration  # execute the plan with review gates at each step
 ```
