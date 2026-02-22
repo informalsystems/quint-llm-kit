@@ -1,5 +1,5 @@
 ---
-command: /mine:setup-choreo
+command: /spec:setup-choreo
 description: Download Choreo framework files for writing distributed protocol specifications
 version: 1.0.0
 ---
@@ -56,7 +56,7 @@ To use Choreo in your specs:
   import choreo(processes = NODES) as choreo from "choreo/choreo"
 
 Next steps:
-  1. Run /mine:start to create a Choreo-based specification
+  1. Run /spec:start to create a Choreo-based specification
   2. Or copy specs/choreo/template.qnt as a starting point
   3. See examples: https://github.com/informalsystems/choreo/tree/main/examples
 ```
@@ -216,7 +216,7 @@ Please check your internet connection and try again.
 
 **Input**:
 ```
-/mine:setup-choreo
+/spec:setup-choreo
 ```
 
 **Process**:
@@ -248,7 +248,7 @@ To use Choreo in your specs:
   import choreo(processes = NODES) as choreo from "choreo/choreo"
 
 Next steps:
-  1. Run /mine:start to create a Choreo-based specification
+  1. Run /spec:start to create a Choreo-based specification
   2. Or copy specs/choreo/template.qnt as a starting point
   3. See examples: https://github.com/informalsystems/choreo/tree/main/examples
 

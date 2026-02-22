@@ -1,5 +1,5 @@
 ---
-command: /play:explain-trace
+command: /verify:explain-trace
 description: Run Quint simulator on invariant/witness and explain trace in structured format
 version: 1.0.0
 ---
@@ -403,7 +403,7 @@ Use LLM (Claude) to generate natural language explanations:
 
 **Input**:
 ```
-/play:explain-trace \
+/verify:explain-trace \
   --spec_path=specs/consensus.qnt \
   --check_name=agreement \
   --check_type=invariant \
@@ -519,7 +519,7 @@ Reproduction Command:
 
 **Input**:
 ```
-/play:explain-trace \
+/verify:explain-trace \
   --spec_path=specs/consensus.qnt \
   --check_name=canDecide \
   --check_type=witness \

@@ -1,3 +1,6 @@
+.mcp.json
+.claude
+
 # Node dependencies
 node_modules/
 

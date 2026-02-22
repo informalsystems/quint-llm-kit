@@ -1,5 +1,5 @@
 ---
-command: /play:open:debug-witness
+command: /verify:debug-witness
 description: witness debugging with progressive search and relaxation analysis
 version: 1.0.0
 ---
@@ -332,7 +332,7 @@ WHERE TO INVESTIGATE
 
 **Input**:
 ```
-/play:open:debug-witness \
+/verify:debug-witness \
   --spec_path=specs/consensus.qnt \
   --witness_name=canDecide
 ```

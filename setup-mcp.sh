@@ -42,8 +42,59 @@ echo "Using workspace: $WORKSPACE_PATH"
 echo
 
 MCP_JSON="$WORKSPACE_PATH/.mcp.json"
+CLAUDE_SETTINGS="$WORKSPACE_PATH/.claude/settings.json"
 KB_SERVER_PATH="/home/dev/mcp-servers/kb/dist/server.js"
 
+echo "=================================================="
+echo "Creating .claude/settings.json..."
+echo "=================================================="
+echo
+
+mkdir -p "$WORKSPACE_PATH/.claude"
+
+# Backup existing settings.json if it exists
+if [ -f "$CLAUDE_SETTINGS" ]; then
+    cp "$CLAUDE_SETTINGS" "$CLAUDE_SETTINGS.backup"
+    echo "✓ Backed up existing .claude/settings.json"
+fi
+
+cat > "$CLAUDE_SETTINGS" <<EOF
+{
+  "enabledMcpjsonServers": ["quint-lsp", "quint-kb"],
+  "enableAllProjectMcpServers": true,
+  "permissions": {
+    "allow": [
+      "mcp__quint-kb__*",
+      "mcp__quint-lsp__*",
+      "Bash(quint*)",
+      "Bash(cargo check*)",
+      "Bash(cargo test*)",
+      "Bash(cargo build*)",
+      "Bash(cargo clippy*)",
+      "Bash(cargo run*)",
+      "Bash(go test*)",
+      "Bash(go build*)",
+      "Bash(go vet*)",
+      "Bash(tsc*)",
+      "Bash(npx tsc*)",
+      "Bash(npm test*)",
+      "Bash(npm run *)",
+      "Bash(yarn test*)",
+      "Bash(yarn run *)",
+      "Bash(bun test*)",
+      "Bash(bun run *)",
+      "Bash(pytest*)",
+      "Bash(python -m pytest*)",
+      "Bash(make test*)",
+      "Bash(make check*)",
+      "Bash(make build*)"
+    ]
+  }
+}
+EOF
+echo "✓ Created .claude/settings.json with MCP tool permissions pre-approved"
+
+echo
 echo "=================================================="
 echo "Creating .mcp.json..."
 echo "=================================================="

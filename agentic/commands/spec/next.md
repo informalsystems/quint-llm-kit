@@ -1,5 +1,5 @@
 ---
-command: /mine:next
+command: /spec:next
 description: Suggest next steps in your Quint specification workflow based on current project state
 version: 1.0.0
 ---
@@ -43,7 +43,7 @@ Recommended Next Steps:
 1. 🧪 Generate Witness Tests
    Test that your spec can actually reach interesting states:
 
-   /play:open:generate-witness --spec_path=specs/consensus.qnt
+   /verify:generate-witness --spec_path=specs/consensus.qnt
 
    This will create tests to verify reachability of key protocol states.
 
@@ -73,10 +73,10 @@ Option 1: Use Choreo Framework (Recommended for Distributed Protocols)
   Choreo provides structured patterns for message-passing protocols.
 
   Step 1: Install Choreo
-    /mine:setup-choreo
+    /spec:setup-choreo
 
   Step 2: Create your spec
-    /mine:start
+    /spec:start
 
   Learn more: https://quint-lang.org/choreo
 
@@ -84,7 +84,7 @@ Option 2: Pure Quint (For General Specifications)
 
   Use standard Quint without Choreo framework.
 
-  /mine:start
+  /spec:start
 
   Learn more: https://quint-lang.org/docs
 
@@ -203,15 +203,15 @@ Option 2: Pure Quint (For General Specifications)
       - Suggest 1: Option to install Choreo
         ```
         Option 1: Use Choreo Framework (Recommended for Distributed Protocols)
-          Step 1: /mine:setup-choreo
-          Step 2: /mine:start
+          Step 1: /spec:setup-choreo
+          Step 2: /spec:start
           Learn more: https://quint-lang.org/choreo
 
         Option 2: Pure Quint
-          /mine:start
+          /spec:start
         ```
     - If choreo_installed == true:
-      - Suggest: Run `/mine:start` to create spec
+      - Suggest: Run `/spec:start` to create spec
       - Note: "Choreo framework is ready"
 
 12. **Stage: choreo_ready**
@@ -220,7 +220,7 @@ Option 2: Pure Quint (For General Specifications)
       ✓ Choreo framework installed
 
       Next: Create your distributed protocol specification
-        /mine:start
+        /spec:start
 
       This will guide you through creating a Choreo-based spec.
       ```
@@ -298,7 +298,7 @@ Option 2: Pure Quint (For General Specifications)
 
         Witness tests verify your spec can reach interesting states.
 
-        /play:open:generate-witness --spec_path={primary_spec}
+        /verify:generate-witness --spec_path={primary_spec}
 
         This ensures your spec is not vacuous (too constrained).
         ```
@@ -322,7 +322,7 @@ Option 2: Pure Quint (For General Specifications)
       ```
       🎯 Test Choreo Listeners
 
-      /play:open:test-listeners --spec_path={primary_spec}
+      /verify:test-listeners --spec_path={primary_spec}
 
       Verifies your listener functions work correctly.
       ```
@@ -334,10 +334,10 @@ Option 2: Pure Quint (For General Specifications)
         🔧 Debugging Tools (if tests fail)
 
         Explain failed traces:
-          /play:open:explain-trace --spec_path={primary_spec}
+          /verify:explain-trace --spec_path={primary_spec}
 
         Debug failing witnesses:
-          /play:open:debug-witness --spec_path={primary_spec}
+          /verify:debug-witness --spec_path={primary_spec}
         ```
 
 ### Phase 4: Display Suggestions
@@ -413,7 +413,7 @@ Option 2: Pure Quint (For General Specifications)
 **Scenario 1: No specs, Choreo installed**
 
 ```
-/mine:next
+/spec:next
 
 🎯 Next Steps for Your Quint Workflow
 
@@ -427,7 +427,7 @@ Recommended Next Steps:
 
    You have Choreo ready! Let's create a specification:
 
-   /mine:start
+   /spec:start
 
    This will analyze your documentation and guide you through
    creating a Choreo-based distributed protocol specification.
@@ -441,7 +441,7 @@ Recommended Next Steps:
 **Scenario 2: Spec exists, no tests**
 
 ```
-/mine:next
+/spec:next
 
 🎯 Next Steps for Your Quint Workflow
 
@@ -472,7 +472,7 @@ Recommended Next Steps:
 
 3. 🧪 Generate Witness Tests
 
-   /play:open:generate-witness --spec_path=specs/consensus.qnt
+   /verify:generate-witness --spec_path=specs/consensus.qnt
 
    This verifies your spec can reach important states.
 
@@ -485,7 +485,7 @@ Recommended Next Steps:
 **Scenario 3: Complete spec with tests**
 
 ```
-/mine:next
+/spec:next
 
 🎯 Next Steps for Your Quint Workflow
 
@@ -515,15 +515,15 @@ Recommended Next Steps:
 
 3. 🎯 Test Choreo Listeners
 
-   /play:open:test-listeners --spec_path=specs/consensus.qnt
+   /verify:test-listeners --spec_path=specs/consensus.qnt
 
 4. 🔧 If Tests Fail
 
    Explain traces:
-     /play:open:explain-trace --spec_path=specs/consensus.qnt
+     /verify:explain-trace --spec_path=specs/consensus.qnt
 
    Debug witnesses:
-     /play:open:debug-witness --spec_path=specs/consensus.qnt
+     /verify:debug-witness --spec_path=specs/consensus.qnt
 
 ---
 📚 Advanced:

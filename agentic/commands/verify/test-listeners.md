@@ -1,5 +1,5 @@
 ---
-command: /play:open:test-listeners
+command: /verify:test-listeners
 description: Generate test runs from witness-based counterexamples for protocol listeners(choreo framework only)
 version: 5.0.0
 ---
