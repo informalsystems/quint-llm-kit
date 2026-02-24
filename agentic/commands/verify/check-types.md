@@ -1,5 +1,5 @@
 ---
-command: /play:closed:check-types
+command: /verify:check-types
 description: Generate and run type variant witness tests for sum types in a spec
 version: 1.0.0
 ---
@@ -11,7 +11,7 @@ Generate witnesses for sum type variants with automatic type detection and confi
 ## Usage
 
 ```bash
-/play:closed:check-types --spec_path=<path/to/spec.qnt> [--max_steps=100]
+/verify:check-types --spec_path=<path/to/spec.qnt> [--max_steps=100]
 ```
 
 ## What it does

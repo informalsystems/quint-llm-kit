@@ -1,6 +1,6 @@
 ---
 command: /code:plan-migration
-description: Create an implementation plan to migrate codebase from one Quint specification to another, with architectural decisions and task breakdown
+description: Create an implementation plan from a Quint specification — works for new projects (greenfield) and existing codebases
 version: 2.0.0
 ---
 
@@ -8,7 +8,11 @@ version: 2.0.0
 
 ## Objective
 
-Analyze Quint specifications and codebase to create a detailed implementation plan with architectural decisions and task breakdown. This command handles ONLY planning - implementation is done by separate agents.
+Analyze a Quint specification and create a detailed implementation plan with architectural decisions and task breakdown. This command handles ONLY planning — implementation is done by separate agents.
+
+Works in two modes:
+- **Greenfield**: No existing codebase. Creates a plan for implementing the spec from scratch, including project structure and technology choices.
+- **Migration**: Existing codebase with a previous spec. Creates a plan for updating the implementation to match the new spec.
 
 ## File Operation Constraints
 
@@ -29,11 +33,11 @@ Analyze Quint specifications and codebase to create a detailed implementation pl
 ## Input Contract
 
 ### Required Parameters
-- `original_spec`: Path to Quint spec matching current codebase behavior
-- `target_spec`: Path to Quint spec defining desired behavior
-- `codebase_root`: Root directory of implementation
+- `target_spec`: Path to Quint spec defining the desired behavior
 
 ### Optional Parameters
+- `original_spec`: Path to Quint spec matching current codebase behavior (migration only — omit for greenfield)
+- `codebase_root`: Root directory of existing implementation (migration only — omit for greenfield)
 - `protocol_description`: Path to document with implementation guidance
 - `implementation_agent`: Name of agent for implementation tasks (default: "spec-implementer")
 - `mbt_agent`: Name of agent for MBT validation tasks (default: "mbt-validator")
@@ -72,11 +76,26 @@ Analyze Quint specifications and codebase to create a detailed implementation pl
 
 ## Planning Methodology
 
+### Phase 0: Detect Workflow Mode
+
+Before anything else, determine which mode applies:
+
+- **Greenfield** — `original_spec` is not provided OR `codebase_root` is not provided or is empty.
+  Proceed to implement the `target_spec` from scratch.
+- **Migration** — Both `original_spec` and a non-empty `codebase_root` are provided.
+  Proceed to update the existing implementation to match `target_spec`.
+
+If the mode is ambiguous, use `AskUserQuestion` to confirm before proceeding.
+
+---
+
 ### Phase 1: Specification Analysis and Mapping
 
 When you begin work, you will:
 
-1. **Analyze the Original Specification**: Thoroughly examine the original Quint specification that matches the current codebase behavior. Understand every state variable, invariant, transition, and temporal property.
+1. **Analyze the Target Specification**: Thoroughly examine the target Quint specification. Understand every state variable, invariant, transition, and temporal property.
+
+   **Migration only — also analyze the original specification**: Examine the original Quint specification that matches the current codebase behavior so you can identify what has changed.
 
 2. **Study the Protocol Description** (if provided): The user may provide a protocol/algorithm description document that:
    - Explains the high-level protocol design and goals
@@ -119,19 +138,23 @@ When you begin work, you will:
 
    These implementation notes are authoritative for HOW to implement, but the spec defines WHAT to implement.
 
-3. **Inspect the Current Implementation**: Study the existing codebase to understand how abstract specification concepts map to concrete code structures. Document these mappings explicitly:
+3. **Inspect the Current Implementation** *(migration only)*: Study the existing codebase to understand how abstract specification concepts map to concrete code structures. Document these mappings explicitly:
    - State variables → data structures, class fields, database schemas
    - Transitions → functions, methods, API endpoints, event handlers
    - Preconditions → validation logic, guards, authorization checks
    - Postconditions → assertions, state updates, side effects
    - Invariants → consistency checks, validation rules
 
-4. **Compare Specifications**: Use `delta` or appropriate diff tools to identify all differences between the original and target specifications. Categorize changes as:
+   **Greenfield alternative**: If there is no existing codebase, use `AskUserQuestion` to determine the target language and any framework/architectural preferences. Document these as the baseline for the architecture map.
+
+4. **Compare Specifications** *(migration only)*: Use `delta` or appropriate diff tools to identify all differences between the original and target specifications. Categorize changes as:
    - New transitions (new behavior to implement)
    - Modified transitions (existing behavior to update)
    - Removed transitions (behavior to deprecate/remove)
    - State variable changes (data structure modifications)
    - Invariant changes (new consistency requirements)
+
+   **Greenfield alternative**: All transitions in `target_spec` are new — treat every transition as a fresh implementation task.
 
 5. **Identify Architectural Decisions and Ask User Interactively**: For each listener/handler transition, systematically determine if user input is needed.
 

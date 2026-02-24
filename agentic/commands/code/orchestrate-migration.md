@@ -1,14 +1,14 @@
 ---
 command: /code:orchestrate-migration
-description: Orchestrate the ping-pong workflow between implementation and MBT validation agents, managing the spec migration from start to finish with approval gates
+description: Orchestrate the implementation workflow between implementation and MBT validation agents, executing a plan produced by /code:plan-migration from start to finish with approval gates
 version: 2.0.0
 ---
 
-# Orchestrate Specification Migration
+# Orchestrate Specification Implementation
 
 ## Objective
 
-Guide and orchestrate the complete migration workflow, alternating between `@spec-implementer` and `@mbt-validator` agents in a ping-pong pattern. Manages agent resumption, tracks progress, and provides approval gates at each checkpoint.
+Guide and orchestrate the complete implementation workflow, alternating between `@spec-implementer` and `@mbt-validator` agents in a ping-pong pattern. Works for both greenfield projects and migrations of existing codebases. Manages agent resumption, tracks progress, and provides approval gates at each checkpoint.
 
 ## Prerequisites
 

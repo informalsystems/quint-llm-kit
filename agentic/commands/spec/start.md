@@ -1,5 +1,5 @@
 ---
-command: /mine:start
+command: /spec:start
 description: Create Quint specification from documentation and code, guided by interactive choices (supports Choreo framework)
 version: 2.0.0
 ---
@@ -109,7 +109,7 @@ Next Steps:
   2. Run: quint typecheck specs/consensus.qnt
   3. Add tests or invariants
   4. Iterate on the model
-  5. Optional: Run /mine:setup-choreo to enable Choreo framework
+  5. Optional: Run /spec:setup-choreo to enable Choreo framework
 
 MCP tools used: quint-kb (examples), quint-lsp (validation)
 ```
@@ -282,7 +282,7 @@ Please ensure your repository contains .md documentation files, or specify doc_p
        - Display: "✓ Choreo framework detected, will use Choreo patterns"
      - If not found:
        - Set: `use_choreo = false`
-       - Display: "Using standard Quint (run /mine:setup-choreo to enable Choreo framework)"
+       - Display: "Using standard Quint (run /spec:setup-choreo to enable Choreo framework)"
      - Store: `use_choreo` flag for generation phase
 
 9.6. **Inform User About Framework Choice**
@@ -647,7 +647,7 @@ Please ensure your repository contains .md documentation files, or specify doc_p
 
 **Input**:
 ```
-/play:open:spec-from-docs
+/spec:start
 ```
 
 **Process**:

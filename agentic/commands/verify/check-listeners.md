@@ -1,5 +1,5 @@
 ---
-command: /play:closed:check-listeners
+command: /verify:check-listeners
 description: Generate and run listener witness tests for a spec
 version: 1.0.0
 ---
@@ -11,7 +11,7 @@ Run listener witness generation scripts with automatic config detection.
 ## Usage
 
 ```bash
-/play:closed:check-listeners --spec_path=<path/to/spec.qnt> [--max_steps=100]
+/verify:check-listeners --spec_path=<path/to/spec.qnt> [--max_steps=100]
 ```
 
 ## What it does
