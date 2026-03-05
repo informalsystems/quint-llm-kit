@@ -3,7 +3,7 @@ FROM debian:trixie-slim
 
 RUN mkdir /workspace
 
-# Install dependencies
+# Install dependencies (OpenJDK 21 for Apalache; requires Java 17 or 21 LTS)
 RUN apt-get update && apt-get install -y \
 	curl \
 	git \
@@ -11,12 +11,18 @@ RUN apt-get update && apt-get install -y \
 	ca-certificates \
 	tree \
 	jq \
+	openjdk-21-jdk \
 	python3 \
 	python3-pip \
 	python3-venv \
 	openssl \
 	protobuf-compiler \
 	&& rm -rf /var/lib/apt/lists/*
+
+# Java: use arch-agnostic path for JAVA_HOME (Debian installs to java-21-openjdk-<arch>)
+RUN ln -sf /usr/lib/jvm/java-21-openjdk-$(dpkg --print-architecture) /usr/lib/jvm/java-21-openjdk
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+ENV PATH=$JAVA_HOME/bin:$PATH
 
 # Install Node.js (required for Claude Code)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
