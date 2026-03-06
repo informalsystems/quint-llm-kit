@@ -3,7 +3,7 @@ FROM debian:trixie-slim
 
 RUN mkdir /workspace
 
-# Install dependencies (OpenJDK 21 for Apalache; requires Java 17 or 21 LTS)
+# Install dependencies
 RUN apt-get update && apt-get install -y \
 	curl \
 	git \
